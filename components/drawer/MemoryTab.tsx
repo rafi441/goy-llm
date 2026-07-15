@@ -126,7 +126,7 @@ export function MemoryTab({ chatId }: { chatId: string }) {
           {(docsQuery.data ?? []).map((d) => (
             <li
               key={d.id}
-              className="flex items-center gap-2 rounded-md border border-[var(--border)] px-2 py-1.5 text-sm"
+              className="flex items-center gap-2 rounded-lg border border-[var(--border)] px-2 py-1.5 text-sm"
             >
               <FileText size={14} className="text-[var(--fg-subtle)]" />
               <span className="flex-1 truncate text-[var(--fg)]">{d.filename}</span>
