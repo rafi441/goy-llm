@@ -6,6 +6,7 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { Drawer } from './Drawer';
 import { useUi } from '@/lib/store/ui';
+import { useTheme } from '@/lib/store/theme';
 import { ConfirmHost } from '@/components/ui/ConfirmDialog';
 import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { PromptInspector } from '@/components/chat/PromptInspector';
@@ -18,6 +19,11 @@ export function Shell({ children }: { children: ReactNode }) {
   const mobileOpen = useUi((s) => s.sidebarMobileOpen);
   const setMobileOpen = useUi((s) => s.setSidebarMobile);
   const setPlayMode = useUi((s) => s.setPlayMode);
+  const initTheme = useTheme((s) => s.init);
+
+  useEffect(() => {
+    initTheme();
+  }, [initTheme]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
