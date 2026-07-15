@@ -45,7 +45,7 @@ export function SettingsDialog() {
           {filtered.map((s) => (
             <button
               key={s.key}
-              className={`mb-0.5 block w-full rounded-md px-2 py-1.5 text-left text-sm ${
+              className={`mb-0.5 block w-full rounded-lg px-2 py-1.5 text-left text-sm ${
                 section === s.key ? 'bg-[var(--bg-hover)] text-[var(--fg)]' : 'text-[var(--fg-muted)] hover:bg-[var(--bg-elevated)]'
               }`}
               onClick={() => openSettings(s.key)}
