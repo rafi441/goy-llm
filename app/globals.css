@@ -1,0 +1,229 @@
+@import 'tailwindcss';
+@plugin 'daisyui';
+
+@plugin 'daisyui/theme' {
+  name: 'goyllm';
+  default: true;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: oklch(0.15 0.018 285);
+  --color-base-200: oklch(0.12 0.018 285);
+  --color-base-300: oklch(0.2 0.024 285);
+  --color-base-content: oklch(0.96 0.008 285);
+
+  --color-primary: oklch(0.62 0.19 295);
+  --color-primary-content: oklch(0.98 0 0);
+  --color-secondary: oklch(0.26 0.045 292);
+  --color-secondary-content: oklch(0.96 0.008 285);
+  --color-accent: oklch(0.62 0.19 295);
+  --color-accent-content: oklch(0.98 0 0);
+  --color-neutral: oklch(0.2 0.024 285);
+  --color-neutral-content: oklch(0.96 0.008 285);
+
+  --color-info: oklch(0.7 0.12 230);
+  --color-info-content: oklch(0.98 0 0);
+  --color-success: oklch(0.68 0.16 150);
+  --color-success-content: oklch(0.98 0 0);
+  --color-warning: oklch(0.78 0.16 80);
+  --color-warning-content: oklch(0.2 0.02 80);
+  --color-error: oklch(0.58 0.21 25);
+  --color-error-content: oklch(0.98 0 0);
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+}
+
+@theme {
+  --color-bg: oklch(0.15 0.018 285);
+  --color-bg-sidebar: oklch(0.12 0.018 285);
+  --color-bg-elevated: oklch(0.2 0.024 285);
+  --color-bg-hover: oklch(0.24 0.028 285);
+  --color-bg-user-msg: oklch(0.26 0.045 292);
+  --color-border-default: oklch(0.27 0.028 285);
+  --color-border-subtle: oklch(0.22 0.022 285);
+  --color-fg: oklch(0.96 0.008 285);
+  --color-fg-muted: oklch(0.68 0.018 285);
+  --color-fg-subtle: oklch(0.52 0.018 285);
+  --color-primary-accent: oklch(0.62 0.19 295);
+  --color-primary-accent-hover: oklch(0.67 0.19 295);
+  --color-destructive: oklch(0.58 0.21 25);
+}
+
+:root {
+  --bg: oklch(0.15 0.018 285);
+  --bg-sidebar: oklch(0.12 0.018 285);
+  --bg-elevated: oklch(0.2 0.024 285);
+  --bg-hover: oklch(0.24 0.028 285);
+  --bg-user-msg: oklch(0.26 0.045 292);
+  --border: oklch(0.27 0.028 285);
+  --border-subtle: oklch(0.22 0.022 285);
+  --fg: oklch(0.96 0.008 285);
+  --fg-muted: oklch(0.68 0.018 285);
+  --fg-subtle: oklch(0.52 0.018 285);
+  --primary: oklch(0.62 0.19 295);
+  --primary-hover: oklch(0.67 0.19 295);
+  --primary-fg: oklch(0.98 0 0);
+  --destructive: oklch(0.58 0.21 25);
+  --ring: oklch(0.62 0.19 295);
+  --radius: 0.75rem;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ponytail: base layer so daisyUI's transparent ghost/link borders win;
+   only explicit `border-*` utilities draw a visible border */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+}
+
+::selection {
+  background: color-mix(in oklch, var(--primary) 40%, transparent);
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes blink-caret {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+.streaming-caret::after {
+  content: '▍';
+  color: var(--primary);
+  animation: blink-caret 1s step-end infinite;
+  margin-left: 1px;
+}
+
+.prose-chat {
+  overflow-wrap: anywhere;
+}
+.prose-chat p {
+  margin: 0.5rem 0;
+}
+.prose-chat p:first-child {
+  margin-top: 0;
+}
+.prose-chat p:last-child {
+  margin-bottom: 0;
+}
+.prose-chat h1,
+.prose-chat h2,
+.prose-chat h3 {
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+  line-height: 1.3;
+}
+.prose-chat h1 {
+  font-size: 1.4em;
+}
+.prose-chat h2 {
+  font-size: 1.25em;
+}
+.prose-chat h3 {
+  font-size: 1.1em;
+}
+.prose-chat ul,
+.prose-chat ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+.prose-chat ul {
+  list-style: disc;
+}
+.prose-chat ol {
+  list-style: decimal;
+}
+.prose-chat li {
+  margin: 0.15rem 0;
+}
+.prose-chat code {
+  background: var(--bg-elevated);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.35rem;
+  font-size: 0.9em;
+}
+.prose-chat pre {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.85rem 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+.prose-chat pre code {
+  background: transparent;
+  padding: 0;
+}
+.prose-chat blockquote {
+  border-left: 3px solid var(--primary);
+  padding-left: 0.85rem;
+  color: var(--fg-muted);
+  font-style: italic;
+  margin: 0.75rem 0;
+}
+.prose-chat em {
+  color: var(--fg-subtle);
+  font-style: italic;
+  font-size: 0.94em;
+}
+.prose-chat a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.prose-chat table {
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+  display: block;
+  overflow-x: auto;
+}
+.prose-chat th,
+.prose-chat td {
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.7rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

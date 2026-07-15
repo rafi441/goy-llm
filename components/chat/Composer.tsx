@@ -1,0 +1,138 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { ArrowUp, Square, Play, Plus } from 'lucide-react';
+import { useChat, api } from '@/lib/client/hooks';
+import { useUi } from '@/lib/store/ui';
+import { estimateTokens } from '@/lib/tokenizer';
+import { ModeChips } from './ModeChips';
+import { DirectorPopover } from '@/components/director/DirectorPopover';
+import { Suggestions } from '@/components/director/Suggestions';
+import { TokenBar } from '@/components/ui/TokenBar';
+import type { PlayMode } from '@/lib/types';
+
+interface Props {
+  chatId: string;
+  draft: string;
+  setDraft: (v: string) => void;
+  onSubmit: (content: string, mode: PlayMode) => void;
+  onGenerate: (directive?: { content: string; strong?: boolean }) => void;
+  running: boolean;
+  onStop: () => void;
+}
+
+const PLACEHOLDERS: Record<PlayMode, string> = {
+  as_user: 'Message…',
+  as_char: 'Write as the character…',
+  narrator: 'Narrate the scene…',
+};
+
+const MODE_BORDER: Record<PlayMode, string> = {
+  as_user: 'border-[var(--border)]',
+  as_char: 'border-[var(--primary)]/60',
+  narrator: 'border-[var(--color-info)]/50',
+};
+
+export function Composer({ chatId, draft, setDraft, onSubmit, onGenerate, running, onStop }: Props) {
+  const mode = useUi((s) => s.playMode);
+  const { data } = useChat(chatId);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const msgCount = data?.messages.length ?? 0;
+  const budgetQuery = useQuery({
+    queryKey: ['budget', chatId, msgCount, running],
+    enabled: !running && !!data?.chat.model_id,
+    queryFn: () =>
+      api.apiGet<{ totalTokens: number; budget: number }>(`/api/chats/${chatId}/prompt`),
+  });
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(el.scrollHeight, 8 * 24 + 20)}px`;
+  }, [draft]);
+
+  const committed = budgetQuery.data?.totalTokens ?? 0;
+  const budget = budgetQuery.data?.budget ?? 8192;
+  const used = committed + estimateTokens(draft);
+
+  const submit = () => {
+    if (!draft.trim() || running) return;
+    onSubmit(draft, mode);
+  };
+
+  return (
+    <div className="shrink-0 px-4 pb-3 pt-1">
+      <div className="relative mx-auto max-w-[46rem]">
+        <div className="mb-1 flex items-center justify-between px-1">
+          <ModeChips />
+          <TokenBar used={used} budget={budget} compact />
+        </div>
+
+        <div
+          className={`flex items-end gap-1 rounded-2xl border bg-[var(--bg-elevated)] px-2 py-1.5 ${MODE_BORDER[mode]}`}
+        >
+          <DirectorPopover chatId={chatId} onGenerate={onGenerate} />
+          <div className="flex flex-1 items-end gap-1">
+            <Suggestions chatId={chatId} onPick={(t) => setDraft(t)} />
+            <textarea
+              ref={textareaRef}
+              rows={1}
+              className="min-w-0 flex-1 resize-none bg-transparent py-1.5 text-[var(--fg)] outline-none placeholder:text-[var(--fg-subtle)]"
+              placeholder={PLACEHOLDERS[mode]}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  submit();
+                }
+              }}
+            />
+          </div>
+
+          {running ? (
+            <button
+              className="btn btn-circle btn-sm bg-[var(--bg-hover)]"
+              onClick={onStop}
+              aria-label="Stop"
+              title="Stop generation"
+            >
+              <Square size={15} fill="currentColor" />
+            </button>
+          ) : mode === 'as_user' ? (
+            <button
+              className="btn btn-circle btn-sm btn-primary"
+              onClick={submit}
+              disabled={!draft.trim()}
+              aria-label="Send"
+            >
+              <ArrowUp size={16} />
+            </button>
+          ) : (
+            <div className="flex gap-1">
+              <button
+                className="btn btn-sm gap-1 bg-[var(--bg-hover)]"
+                onClick={submit}
+                disabled={!draft.trim()}
+                title="Add to the transcript without generating"
+              >
+                <Plus size={14} /> Add
+              </button>
+              <button
+                className="btn btn-circle btn-sm btn-primary"
+                onClick={() => onGenerate()}
+                aria-label="Continue"
+                title="Generate the AI's response"
+              >
+                <Play size={14} />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
