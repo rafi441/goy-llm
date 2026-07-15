@@ -1,6 +1,6 @@
 # GoyLLM
 
-Self-hosted LLM roleplay client — a ChatGPT-like UI you run yourself. Local-first: all data lives in a local SQLite database. No account, no cloud, no telemetry.
+Self-hosted LLM roleplay client — a chat UI you run yourself. Local-first: all data lives in a local SQLite database. No account, no cloud, no telemetry.
 
 > **Heads up:** this is a hobby project, built for fun in spare time. No guarantees, no roadmap, no support commitment — don't expect production polish or timely fixes. Use it as-is.
 
