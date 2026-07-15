@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useChat, useCharacter, useInvalidate, qk, api } from '@/lib/client/hooks';
 import { useGenerate } from '@/lib/client/useGenerate';
-import { useStream } from '@/lib/store/stream';
+import { useStream, streamStatus } from '@/lib/store/stream';
 import { useUi } from '@/lib/store/ui';
 import { confirmDialog } from '@/components/ui/ConfirmDialog';
 import { MessageList } from './MessageList';
@@ -178,6 +178,7 @@ export function ChatView({ chatId }: { chatId: string }) {
       ) : (
         <EmptyChat
           characterName={character.data?.name ?? 'New scene'}
+          avatarPath={character.data?.avatar_path ?? null}
           greetings={character.data?.alternate_greetings ?? []}
           onPick={(text) => setDraft(text)}
         />
@@ -190,6 +191,7 @@ export function ChatView({ chatId }: { chatId: string }) {
         onSubmit={onSubmit}
         onGenerate={onContinueScene}
         running={stream.running && stream.chatId === chatId}
+        status={stream.chatId === chatId ? streamStatus(stream.phase, stream.kind) : ''}
         onStop={stop}
       />
     </div>
