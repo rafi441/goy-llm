@@ -2,6 +2,8 @@
 
 Self-hosted LLM roleplay client — a ChatGPT-like UI you run yourself. Local-first: all data lives in a local SQLite database. No account, no cloud, no telemetry.
 
+> **Heads up:** this is a hobby project, built for fun in spare time. No guarantees, no roadmap, no support commitment — don't expect production polish or timely fixes. Use it as-is.
+
 ## ⚠️ Cannot be deployed to serverless
 
 SQLite needs a **persistent filesystem**. On Vercel/Netlify serverless the filesystem is ephemeral and the database is wiped on every cold start. Every DB route runs on the Node runtime (`export const runtime = 'nodejs'`), never edge.
