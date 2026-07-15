@@ -74,7 +74,7 @@ export function ModelPicker({ connectionId, modelId, onSelect }: ModelPickerProp
   return (
     <div className="relative" ref={ref}>
       <button
-        className="btn btn-ghost btn-sm gap-1.5 text-[var(--fg)]"
+        className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-[var(--fg)] transition hover:bg-[var(--bg-hover)]"
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -132,7 +132,7 @@ export function ModelPicker({ connectionId, modelId, onSelect }: ModelPickerProp
                   return (
                     <div
                       key={`${m.connection_id}:${m.model_id}`}
-                      className={`flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 ${
+                      className={`flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 ${
                         idx === highlight ? 'bg-[var(--bg-hover)]' : ''
                       } ${selected ? 'ring-1 ring-[var(--ring)]' : ''}`}
                       onMouseEnter={() => setHighlight(idx)}
