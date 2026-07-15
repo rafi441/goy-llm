@@ -9,15 +9,20 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#231a2e',
+  themeColor: '#171717',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
 };
 
+const THEME_INIT = `(function(){try{var t=localStorage.getItem('goy-theme')||'system';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'goy-dark':'goy-light';}catch(e){}})();`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-theme="goyllm" suppressHydrationWarning>
+    <html lang="en" data-theme="goy-dark" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+      </head>
       <body className="h-dvh overflow-hidden">
         <QueryProvider>
           {children}
