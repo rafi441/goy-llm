@@ -26,6 +26,7 @@ interface Props {
   avatarPath: string | null;
   isLastAssistant: boolean;
   streamingText: string | null;
+  streamingStatus: string | null;
   ephemeral: boolean;
   handlers: MessageHandlers;
 }
@@ -36,6 +37,7 @@ export function MessageItem({
   avatarPath,
   isLastAssistant,
   streamingText,
+  streamingStatus,
   ephemeral,
   handlers,
 }: Props) {
@@ -76,8 +78,8 @@ export function MessageItem({
 
   if (isUser) {
     return (
-      <div className="group flex flex-col items-end py-3">
-        <div className="max-w-[75%] rounded-2xl bg-[var(--bg-user-msg)] px-4 py-2.5 text-[var(--fg)]">
+      <div className="group flex flex-col items-end py-4">
+        <div className="max-w-[80%] rounded-3xl bg-[var(--bg-user-msg)] px-4 py-2.5 text-[var(--fg)]">
           {editing ? (
             <EditBox draft={draft} setDraft={setDraft} onCancel={() => setEditing(false)} onSave={() => {
               handlers.onEdit(message, draft);
@@ -99,9 +101,10 @@ export function MessageItem({
   }
 
   return (
-    <div className="group flex gap-3 py-3">
-      <Avatar path={avatarPath} name={characterName} size={28} />
+    <div className="group flex gap-3 py-4">
+      <Avatar path={avatarPath} name={characterName} size={30} />
       <div className="min-w-0 flex-1">
+        <div className="mb-1 text-sm font-semibold text-[var(--fg)]">{characterName}</div>
         {editing ? (
           <EditBox
             draft={draft}
@@ -115,7 +118,7 @@ export function MessageItem({
         ) : (
           <div className={streaming && content === '' ? 'text-[var(--fg-subtle)]' : ''}>
             {content === '' && streaming ? (
-              <span className="streaming-caret text-sm">Thinking</span>
+              <span className="streaming-caret text-sm">{streamingStatus ?? 'Loading'}</span>
             ) : (
               <div className={streaming ? 'streaming-caret' : ''}>
                 <MarkdownMessage content={content} />
