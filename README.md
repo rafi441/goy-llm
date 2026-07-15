@@ -5,8 +5,6 @@
 **A self-hosted, local-first LLM roleplay client.**
 Run your own chat UI, plug in any OpenAI-compatible provider, and keep every byte on your machine.
 
-*Peak goyslop. 100% vibe-coded. The tokens know.* 🗿
-
 ![](https://i.imgur.com/AIWonc6.jpeg)
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
@@ -14,13 +12,11 @@ Run your own chat UI, plug in any OpenAI-compatible provider, and keep every byt
 ![React 19](https://img.shields.io/badge/React-19-149eca?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript)
 ![SQLite](https://img.shields.io/badge/SQLite-local--first-003b57?logo=sqlite)
-![Certified Slop](https://img.shields.io/badge/certified-slop-brightgreen)
-![Vibe Coded](https://img.shields.io/badge/vibe-coded-ff69b4)
 
 </div>
 
 > [!NOTE]
-> **Hobby project, artisanal slop edition.** 🍜 Built for fun in spare time between naps. No guarantees, no roadmap, no support commitment, no adult supervision. It works on my machine™. Don't expect production polish or timely fixes — expect vibes. Use it as-is; PRs welcome but reviewed on goy standard time (eventually, maybe, if the vibes are right).
+> **Hobby project.** Built for fun in spare time. No guarantees, no roadmap, no support commitment — don't expect production polish or timely fixes. Use it as-is, PRs welcome but not promised a review.
 
 ---
 
@@ -43,7 +39,6 @@ Run your own chat UI, plug in any OpenAI-compatible provider, and keep every byt
 - **Your keys stay yours.** API keys are encrypted at rest (AES-256-GCM) and **never** sent to the browser — `GET /api/connections` returns masked keys only.
 - **Provider-agnostic.** OpenRouter, Ollama, LM Studio, or any OpenAI-compatible endpoint. Models are fetched automatically — you never type a model name.
 - **Built for roleplay.** SillyTavern card interop, play modes, a director tool, lorebooks, and a fully inspectable prompt builder.
-- **Maximum slop, zero regret.** Ships more features than a sane person would maintain. We do not fear the token counter. 🗿
 
 > [!WARNING]
 > **Not deployable to serverless.** SQLite needs a persistent filesystem; on Vercel/Netlify the filesystem is ephemeral and the DB is wiped on every cold start. Every DB route runs on the Node runtime (`export const runtime = 'nodejs'`), never edge. Deploy with `next start` on your own machine or Docker with a mounted volume.
@@ -154,14 +149,4 @@ Tests cover the two most critical guarantees: `buildPrompt()` behavior (director
 
 ## License
 
-Licensed under the [GNU GPL v3.0](LICENSE). Fork it, remix it, deploy your own slop. That's the whole point.
-
----
-
-<div align="center">
-
-*Made with 🗿 and questionable amounts of caffeine. No LLMs were harmed — several were mildly inconvenienced.*
-
-**goyslop stays winning.**
-
-</div>
+Licensed under the [GNU GPL v3.0](LICENSE).
