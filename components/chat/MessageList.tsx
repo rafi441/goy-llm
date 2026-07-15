@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { ArrowDown } from 'lucide-react';
-import { useStream } from '@/lib/store/stream';
+import { useStream, streamStatus } from '@/lib/store/stream';
 import { MessageItem } from './MessageItem';
 import { DirectiveCard } from '@/components/director/DirectiveCard';
 import type { Message } from '@/lib/types';
@@ -89,13 +89,14 @@ export function MessageList(props: Props) {
         onScroll={onScroll}
         className="scrollbar-thin h-full overflow-y-auto"
       >
-        <div className="mx-auto max-w-[46rem] px-4" style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
+        <div className="mx-auto max-w-3xl px-4" style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
           {virtualizer.getVirtualItems().map((vItem) => {
             const m = items[vItem.index]!;
             const isStreamingTarget =
               stream.running &&
               (stream.kind === 'regen' || stream.kind === 'continue') &&
               stream.targetMessageId === m.id;
+            const isStreamBubble = isStreamingTarget || m.id === STREAMING_ID;
             return (
               <div
                 key={vItem.key}
@@ -122,6 +123,7 @@ export function MessageList(props: Props) {
                     avatarPath={props.avatarPath}
                     isLastAssistant={vItem.index === lastAssistantIndex}
                     streamingText={isStreamingTarget ? stream.text : null}
+                    streamingStatus={isStreamBubble ? streamStatus(stream.phase, stream.kind) : null}
                     ephemeral={m.id === STREAMING_ID}
                     handlers={props}
                   />
