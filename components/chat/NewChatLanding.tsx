@@ -30,26 +30,35 @@ export function NewChatLanding() {
 
   return (
     <div className="scrollbar-thin h-full overflow-y-auto">
-      <div className="mx-auto max-w-[52rem] px-4 py-10">
-        <div className="mb-8 text-center">
-          <h1 className="mb-1 text-2xl font-semibold text-[var(--fg)]">Start a roleplay</h1>
+      <div className="mx-auto max-w-[52rem] px-4 py-12">
+        <div className="mb-10 text-center">
+          <h1 className="mb-2 text-3xl font-semibold tracking-tight text-[var(--fg)]">Start a roleplay</h1>
           <p className="text-sm text-[var(--fg-muted)]">Pick a character, or start a blank scene.</p>
         </div>
 
-        <div className="mb-6 flex flex-wrap justify-center gap-2">
-          <button className="btn btn-sm gap-1.5 bg-[var(--bg-elevated)]" onClick={() => startChat(null)}>
+        <div className="mb-8 flex flex-wrap justify-center gap-2">
+          <button
+            className="flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-2 text-sm text-[var(--fg)] transition hover:bg-[var(--bg-hover)]"
+            onClick={() => startChat(null)}
+          >
             <MessageSquarePlus size={15} /> Blank chat
           </button>
-          <button className="btn btn-sm gap-1.5 bg-[var(--bg-elevated)]" onClick={() => openEditor('new')}>
+          <button
+            className="flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-2 text-sm text-[var(--fg)] transition hover:bg-[var(--bg-hover)]"
+            onClick={() => openEditor('new')}
+          >
             <Plus size={15} /> New character
           </button>
-          <button className="btn btn-sm gap-1.5 bg-[var(--bg-elevated)]" onClick={() => setImportOpen(true)}>
+          <button
+            className="flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-2 text-sm text-[var(--fg)] transition hover:bg-[var(--bg-hover)]"
+            onClick={() => setImportOpen(true)}
+          >
             <Upload size={15} /> Import card
           </button>
         </div>
 
         {characters.length === 0 ? (
-          <div className="rounded-box border border-dashed border-[var(--border)] p-10 text-center text-sm text-[var(--fg-subtle)]">
+          <div className="rounded-2xl border border-dashed border-[var(--border)] p-10 text-center text-sm text-[var(--fg-subtle)]">
             No characters yet. Create one or import a SillyTavern card.
           </div>
         ) : (
@@ -57,16 +66,16 @@ export function NewChatLanding() {
             {characters.map((c) => (
               <div
                 key={c.id}
-                className="group relative flex flex-col items-center gap-2 rounded-box border border-[var(--border)] bg-[var(--bg-elevated)] p-4 text-center transition hover:border-[var(--primary)]"
+                className="group relative flex flex-col items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--bg-elevated)] p-5 text-center transition hover:bg-[var(--bg-hover)]"
               >
                 <button
-                  className="absolute right-1 top-1 btn btn-ghost btn-xs btn-circle opacity-0 group-hover:opacity-100"
+                  className="absolute right-1.5 top-1.5 btn btn-ghost btn-xs btn-circle opacity-0 group-hover:opacity-100"
                   onClick={() => openEditor(c.id)}
                   aria-label="Edit character"
                 >
                   <Pencil size={13} />
                 </button>
-                <button className="flex flex-col items-center gap-2" onClick={() => startChat(c)}>
+                <button className="flex flex-col items-center gap-2.5" onClick={() => startChat(c)}>
                   <Avatar path={c.avatar_path} name={c.name} size={72} />
                   <span className="line-clamp-1 text-sm font-medium text-[var(--fg)]">{c.name}</span>
                   {c.tags.length > 0 && (
