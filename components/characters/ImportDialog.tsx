@@ -57,7 +57,7 @@ export function ImportDialog() {
           {results.map((r, i) => (
             <li
               key={i}
-              className="flex items-start gap-2 rounded-md border border-[var(--border)] px-3 py-2 text-sm"
+              className="flex items-start gap-2 rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
             >
               {r.ok ? (
                 r.warning ? (
