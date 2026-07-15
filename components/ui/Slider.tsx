@@ -1,6 +1,6 @@
 'use client';
 
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, Info } from 'lucide-react';
 
 interface SliderProps {
   label: string;
@@ -30,19 +30,19 @@ export function Slider({
   const current = value ?? defaultValue;
   return (
     <div className={disabled ? 'pointer-events-none opacity-40' : ''}>
-      <div className="mb-1 flex items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5 text-sm text-[var(--fg)]">
-          {label}
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <span className="flex min-w-0 items-center gap-1.5 text-sm text-[var(--fg)]">
+          <span className="truncate">{label}</span>
           {tooltip && (
-            <span className="tooltip tooltip-right text-[var(--fg-subtle)]" data-tip={tooltip}>
-              <span className="cursor-help text-xs">ⓘ</span>
+            <span className="tooltip tooltip-left shrink-0 text-[var(--fg-subtle)]" data-tip={tooltip}>
+              <Info size={13} className="cursor-help" />
             </span>
           )}
         </span>
-        <div className="flex items-center gap-1">
+        <div className="flex shrink-0 items-center gap-0.5">
           <input
             type="number"
-            className="input input-xs w-20 border-[var(--border)] bg-[var(--bg)] text-right"
+            className="input input-xs w-14 rounded-lg border-[var(--border)] bg-[var(--bg-elevated)] text-right tabular-nums"
             value={current}
             min={min}
             max={max}
@@ -51,7 +51,7 @@ export function Slider({
             onChange={(e) => onChange(Number(e.target.value))}
           />
           <button
-            className="btn btn-ghost btn-xs btn-circle text-[var(--fg-subtle)]"
+            className="btn btn-ghost btn-xs btn-circle text-[var(--fg-subtle)] hover:text-[var(--fg)]"
             onClick={onReset}
             aria-label={`Reset ${label}`}
             title="Reset to default"
@@ -62,7 +62,7 @@ export function Slider({
       </div>
       <input
         type="range"
-        className="range range-primary range-xs"
+        className="range range-primary range-xs w-full"
         value={current}
         min={min}
         max={max}
