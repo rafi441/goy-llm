@@ -29,32 +29,38 @@ export function Drawer({ chatId }: { chatId: string | null }) {
         onClick={() => setOpen(false)}
         aria-hidden
       />
-      <aside className="fixed right-0 top-0 z-40 flex h-dvh w-[340px] max-w-[90vw] flex-col border-l border-[var(--border)] bg-[var(--bg-elevated)] shadow-2xl xl:static xl:z-auto xl:h-full xl:shadow-none">
-        <div className="flex items-center gap-1 border-b border-[var(--border)] px-3 py-2">
-          <div role="tablist" className="flex min-w-0 flex-1 flex-wrap gap-1">
-            {TABS.map((t) => {
-              const Icon = t.icon;
-              return (
-                <button
-                  key={t.key}
-                  role="tab"
-                  aria-selected={tab === t.key}
-                  title={t.label}
-                  className={`btn btn-sm shrink-0 gap-1.5 ${tab === t.key ? 'btn-primary' : 'btn-ghost'}`}
-                  onClick={() => setTab(t.key)}
-                >
-                  <Icon size={14} />
-                  {tab === t.key && <span>{t.label}</span>}
-                </button>
-              );
-            })}
-          </div>
-          <button className="btn btn-ghost btn-sm btn-circle shrink-0" onClick={() => setOpen(false)} aria-label="Close panel">
+      <aside className="fixed right-0 top-0 z-40 flex h-dvh w-[360px] max-w-[92vw] flex-col overflow-hidden border-l border-[var(--border)] bg-[var(--bg)] shadow-2xl xl:static xl:z-auto xl:h-full xl:shadow-none">
+        <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
+          <span className="text-sm font-semibold text-[var(--fg)]">Controls</span>
+          <button className="btn btn-ghost btn-sm btn-circle" onClick={() => setOpen(false)} aria-label="Close panel">
             <X size={16} />
           </button>
         </div>
 
-        <div className="scrollbar-thin flex-1 overflow-y-auto p-4">
+        <div role="tablist" className="grid grid-cols-4 gap-1 border-b border-[var(--border)] p-2">
+          {TABS.map((t) => {
+            const Icon = t.icon;
+            const active = tab === t.key;
+            return (
+              <button
+                key={t.key}
+                role="tab"
+                aria-selected={active}
+                className={`flex flex-col items-center gap-1 rounded-xl py-2 text-xs transition ${
+                  active
+                    ? 'bg-[var(--bg-hover)] text-[var(--fg)]'
+                    : 'text-[var(--fg-muted)] hover:bg-[var(--bg-elevated)]'
+                }`}
+                onClick={() => setTab(t.key)}
+              >
+                <Icon size={16} />
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="scrollbar-thin flex-1 overflow-y-auto overflow-x-hidden p-4">
           {!chatId ? (
             <p className="py-8 text-center text-sm text-[var(--fg-subtle)]">Open a chat to use this panel.</p>
           ) : tab === 'notes' ? (
