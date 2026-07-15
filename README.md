@@ -84,3 +84,12 @@ Covers the two most critical guarantees: `buildPrompt()` behavior (director plac
 - **Provider adapters** implement one interface (`listModels`, `chat`, `embed`, `capabilities`). Adding a provider is one new file in `lib/providers/`, no UI changes.
 - **`buildPrompt()`** in `lib/prompt/build.ts` is a pure function — fully unit-testable without a DB or network.
 - Every file touching `better-sqlite3` or API keys is marked `import 'server-only'`.
+
+## Credits
+
+- Character-card interop follows the [SillyTavern](https://github.com/SillyTavern/SillyTavern) V2/V3 card spec.
+- Built on the open-source stack listed above — thanks to their maintainers.
+
+## License
+
+[GPL-3.0](LICENSE).
