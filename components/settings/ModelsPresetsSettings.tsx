@@ -166,7 +166,7 @@ function ModelPrefsSection() {
       {data?.error && <p className="mb-2 text-xs text-[var(--destructive)]">{data.error}</p>}
       <ul className="scrollbar-thin flex max-h-72 flex-col gap-1 overflow-y-auto">
         {(data?.models ?? []).map((m) => (
-          <li key={m.model_id} className="flex items-center gap-2 rounded-md border border-[var(--border)] px-2 py-1.5">
+          <li key={m.model_id} className="flex items-center gap-2 rounded-lg border border-[var(--border)] px-2 py-1.5">
             <button
               className={m.favorite ? 'text-[var(--color-warning)]' : 'text-[var(--fg-subtle)]'}
               onClick={() => setPref(m.model_id, { favorite: !m.favorite })}
