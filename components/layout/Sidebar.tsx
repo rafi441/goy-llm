@@ -2,9 +2,22 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Plus, Search, Settings, PanelLeftClose, PanelLeft, MoreHorizontal } from 'lucide-react';
+import {
+  SquarePen,
+  Search,
+  Settings,
+  PanelLeftClose,
+  PanelLeft,
+  MoreHorizontal,
+  Users,
+  Sun,
+  Moon,
+  Monitor,
+  Check,
+} from 'lucide-react';
 import { useChats, useInvalidate, qk, api } from '@/lib/client/hooks';
 import { useUi } from '@/lib/store/ui';
+import { useTheme, type ThemePref } from '@/lib/store/theme';
 import { confirmDialog } from '@/components/ui/ConfirmDialog';
 import type { ChatListItem } from '@/lib/db/repos/chats';
 import { Avatar } from '@/components/ui/Avatar';
@@ -41,7 +54,6 @@ export function Sidebar() {
   const { data: chats = [] } = useChats();
   const collapsed = useUi((s) => s.sidebarCollapsed);
   const toggle = useUi((s) => s.toggleSidebar);
-  const openSettings = useUi((s) => s.openSettings);
   const setMobileOpen = useUi((s) => s.setSidebarMobile);
 
   const [query, setQuery] = useState('');
@@ -54,42 +66,43 @@ export function Sidebar() {
     return chats.filter((c) => c.title.toLowerCase().includes(q));
   }, [debounced, chats]);
 
+  const go = (href: string) => {
+    router.push(href);
+    setMobileOpen(false);
+  };
+
   if (collapsed) {
     return (
-      <aside className="hidden w-[56px] shrink-0 flex-col items-center gap-2 border-r border-[var(--border)] bg-[var(--bg-sidebar)] py-3 md:flex">
+      <aside className="hidden w-[60px] shrink-0 flex-col items-center gap-1 border-r border-[var(--border)] bg-[var(--bg-sidebar)] py-3 md:flex">
         <button className="btn btn-ghost btn-sm btn-circle" onClick={toggle} aria-label="Expand sidebar">
           <PanelLeft size={18} />
         </button>
         <button
           className="btn btn-ghost btn-sm btn-circle"
-          onClick={() => router.push('/')}
+          onClick={() => go('/')}
           aria-label="New chat"
+          title="New chat"
         >
-          <Plus size={18} />
+          <SquarePen size={18} />
         </button>
         <button
-          className="btn btn-ghost btn-sm btn-circle mt-auto"
-          onClick={() => openSettings()}
-          aria-label="Settings"
+          className="btn btn-ghost btn-sm btn-circle"
+          onClick={() => go('/')}
+          aria-label="Characters"
+          title="Characters"
         >
-          <Settings size={18} />
+          <Users size={18} />
         </button>
+        <div className="mt-auto">
+          <UserMenu collapsed />
+        </div>
       </aside>
     );
   }
 
   return (
-    <aside className="flex h-full w-[260px] shrink-0 flex-col border-r border-[var(--border)] bg-[var(--bg-sidebar)]">
-      <div className="flex items-center gap-2 px-3 py-3">
-        <button
-          className="btn btn-sm flex-1 justify-start gap-2 border-[var(--border)] bg-[var(--bg-elevated)] hover:bg-[var(--bg-hover)]"
-          onClick={() => {
-            router.push('/');
-            setMobileOpen(false);
-          }}
-        >
-          <Plus size={16} /> New chat
-        </button>
+    <aside className="flex h-full w-[264px] shrink-0 flex-col border-r border-[var(--border)] bg-[var(--bg-sidebar)]">
+      <div className="flex items-center justify-between px-3 py-2.5">
         <button
           className="btn btn-ghost btn-sm btn-circle hidden md:inline-flex"
           onClick={toggle}
@@ -97,10 +110,19 @@ export function Sidebar() {
         >
           <PanelLeftClose size={18} />
         </button>
+        <span className="text-sm font-semibold tracking-tight text-[var(--fg)] md:hidden">GoyLLM</span>
+        <button
+          className="btn btn-ghost btn-sm btn-circle"
+          onClick={() => go('/')}
+          aria-label="New chat"
+          title="New chat"
+        >
+          <SquarePen size={18} />
+        </button>
       </div>
 
       <div className="px-3 pb-2">
-        <label className="input input-sm flex items-center gap-2 border-[var(--border)] bg-[var(--bg)]">
+        <label className="input input-sm flex items-center gap-2 rounded-xl border-[var(--border)] bg-[var(--bg)]">
           <Search size={14} className="text-[var(--fg-subtle)]" />
           <input
             type="search"
@@ -112,16 +134,22 @@ export function Sidebar() {
         </label>
       </div>
 
+      <div className="px-3 pb-1">
+        <button
+          className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm text-[var(--fg-muted)] transition hover:bg-[var(--bg-hover)] hover:text-[var(--fg)]"
+          onClick={() => go('/')}
+        >
+          <Users size={16} /> Characters
+        </button>
+      </div>
+
       <nav className="scrollbar-thin flex-1 overflow-y-auto px-2 pb-2">
         {filtered ? (
           <ChatGroup
             label={`Results (${filtered.length})`}
             items={filtered}
             activeId={activeId}
-            onOpen={(id) => {
-              router.push(`/c/${id}`);
-              setMobileOpen(false);
-            }}
+            onOpen={(id) => go(`/c/${id}`)}
           />
         ) : (
           groups.map((g) => (
@@ -130,10 +158,7 @@ export function Sidebar() {
               label={g.label}
               items={g.items}
               activeId={activeId}
-              onOpen={(id) => {
-                router.push(`/c/${id}`);
-                setMobileOpen(false);
-              }}
+              onOpen={(id) => go(`/c/${id}`)}
             />
           ))
         )}
@@ -143,14 +168,60 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t border-[var(--border)] p-2">
-        <button
-          className="btn btn-ghost btn-sm w-full justify-start gap-2 text-[var(--fg-muted)]"
-          onClick={() => openSettings()}
-        >
-          <Settings size={16} /> Settings
-        </button>
+        <UserMenu />
       </div>
     </aside>
+  );
+}
+
+const THEME_OPTIONS: { key: ThemePref; label: string; icon: typeof Sun }[] = [
+  { key: 'system', label: 'System', icon: Monitor },
+  { key: 'light', label: 'Light', icon: Sun },
+  { key: 'dark', label: 'Dark', icon: Moon },
+];
+
+function UserMenu({ collapsed }: { collapsed?: boolean }) {
+  const openSettings = useUi((s) => s.openSettings);
+  const pref = useTheme((s) => s.pref);
+  const setPref = useTheme((s) => s.setPref);
+
+  return (
+    <div className={`dropdown dropdown-top ${collapsed ? 'dropdown-end' : 'w-full'}`}>
+      <button
+        tabIndex={0}
+        className={`flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-[var(--bg-hover)] ${
+          collapsed ? 'btn btn-ghost btn-sm btn-circle p-0' : 'w-full'
+        }`}
+        aria-label="Menu"
+      >
+        <Avatar name="GoyLLM" size={collapsed ? 22 : 28} />
+        {!collapsed && <span className="flex-1 truncate text-left text-sm text-[var(--fg)]">GoyLLM</span>}
+      </button>
+      <ul
+        tabIndex={0}
+        className="dropdown-content menu z-40 mb-2 w-56 rounded-box border border-[var(--border)] bg-[var(--bg-elevated)] p-1.5 shadow-xl"
+      >
+        <li className="menu-title px-2 py-1 text-xs text-[var(--fg-subtle)]">Theme</li>
+        {THEME_OPTIONS.map((t) => {
+          const Icon = t.icon;
+          const active = pref === t.key;
+          return (
+            <li key={t.key}>
+              <button className="flex items-center gap-2" onClick={() => setPref(t.key)}>
+                <Icon size={15} /> <span className="flex-1">{t.label}</span>
+                {active && <Check size={14} className="text-[var(--fg)]" />}
+              </button>
+            </li>
+          );
+        })}
+        <div className="my-1 border-t border-[var(--border-subtle)]" />
+        <li>
+          <button className="flex items-center gap-2" onClick={() => openSettings()}>
+            <Settings size={15} /> Settings
+          </button>
+        </li>
+      </ul>
+    </div>
   );
 }
 
@@ -167,9 +238,7 @@ function ChatGroup({
 }) {
   return (
     <div className="mb-2">
-      <div className="px-2 pb-1 pt-2 text-xs font-medium uppercase tracking-wide text-[var(--fg-subtle)]">
-        {label}
-      </div>
+      <div className="px-2 pb-1 pt-2 text-xs font-medium text-[var(--fg-subtle)]">{label}</div>
       <ul>
         {items.map((c) => (
           <ChatRow key={c.id} chat={c} active={c.id === activeId} onOpen={onOpen} />
@@ -213,7 +282,7 @@ function ChatRow({
 
   return (
     <li
-      className={`group relative flex items-center gap-2 rounded-lg px-2 py-1.5 ${
+      className={`group relative flex items-center gap-2 rounded-xl px-2 py-1.5 ${
         active ? 'bg-[var(--bg-hover)]' : 'hover:bg-[var(--bg-elevated)]'
       }`}
     >
