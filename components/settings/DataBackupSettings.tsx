@@ -76,7 +76,7 @@ export function DataBackupSettings() {
             {(trash.data ?? []).map((c) => (
               <li
                 key={c.id}
-                className="flex items-center gap-2 rounded-md border border-[var(--border)] px-3 py-1.5 text-sm"
+                className="flex items-center gap-2 rounded-lg border border-[var(--border)] px-3 py-1.5 text-sm"
               >
                 <span className="flex-1 truncate text-[var(--fg)]">{c.title}</span>
                 <button
