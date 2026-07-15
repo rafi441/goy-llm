@@ -14,18 +14,22 @@ export function ModeChips() {
   const mode = useUi((s) => s.playMode);
   const setMode = useUi((s) => s.setPlayMode);
   return (
-    <div className="flex gap-1">
+    <div className="flex items-center gap-0.5 rounded-full bg-[var(--bg-elevated)] p-0.5">
       {MODES.map((m) => {
         const Icon = m.icon;
         const active = mode === m.key;
         return (
           <button
             key={m.key}
-            className={`btn btn-xs gap-1 ${active ? 'btn-primary' : 'btn-ghost text-[var(--fg-muted)]'}`}
+            className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs transition ${
+              active
+                ? 'bg-[var(--bg)] text-[var(--fg)] shadow-sm'
+                : 'text-[var(--fg-muted)] hover:text-[var(--fg)]'
+            }`}
             onClick={() => setMode(m.key)}
             title={m.hint}
           >
-            <Icon size={12} />
+            <Icon size={13} />
             <span className="hidden sm:inline">{m.label}</span>
           </button>
         );
