@@ -1,6 +1,6 @@
 # GoyLLM
 
-![GoyLLM screenshot](https://i.imgur.com/AIWonc6.jpeg)
+![](https://i.imgur.com/AIWonc6.jpeg)
 
 Self-hosted LLM roleplay client — a chat UI you run yourself. Local-first: all data lives in a local SQLite database. No account, no cloud, no telemetry.
 
