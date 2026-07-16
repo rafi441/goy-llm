@@ -34,10 +34,10 @@ export function SettingsDialog() {
 
   return (
     <Modal open={open} onClose={close} title="Settings" size="xl" bodyClassName="!p-0">
-      <div className="flex min-h-[60dvh]">
-        <nav className="w-44 shrink-0 border-r border-[var(--border)] p-2">
+      <div className="flex flex-col sm:min-h-[60dvh] sm:flex-row">
+        <nav className="scrollbar-thin flex shrink-0 gap-1 overflow-x-auto border-b border-[var(--border)] p-2 sm:w-44 sm:flex-col sm:overflow-x-visible sm:border-b-0 sm:border-r">
           <input
-            className="input input-xs mb-2 w-full border-[var(--border)] bg-[var(--bg)]"
+            className="input input-xs mb-2 hidden w-full border-[var(--border)] bg-[var(--bg)] sm:block"
             placeholder="Search…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -45,7 +45,7 @@ export function SettingsDialog() {
           {filtered.map((s) => (
             <button
               key={s.key}
-              className={`mb-0.5 block w-full rounded-lg px-2 py-1.5 text-left text-sm ${
+              className={`shrink-0 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-left text-sm sm:mb-0.5 sm:w-full ${
                 section === s.key ? 'bg-[var(--bg-hover)] text-[var(--fg)]' : 'text-[var(--fg-muted)] hover:bg-[var(--bg-elevated)]'
               }`}
               onClick={() => openSettings(s.key)}
@@ -54,7 +54,7 @@ export function SettingsDialog() {
             </button>
           ))}
         </nav>
-        <div className="scrollbar-thin max-h-[70dvh] flex-1 overflow-y-auto p-5">
+        <div className="scrollbar-thin max-h-[70dvh] flex-1 overflow-y-auto p-3 sm:p-5">
           {section === 'connections' && <ConnectionsSettings />}
           {section === 'models' && <ModelsPresetsSettings />}
           {section === 'prompt' && <PromptOrderSettings />}

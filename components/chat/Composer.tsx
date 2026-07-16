@@ -66,10 +66,10 @@ export function Composer({ chatId, draft, setDraft, onSubmit, onGenerate, onImpe
   };
 
   return (
-    <div className="shrink-0 px-4 pb-4 pt-1">
+    <div className="shrink-0 px-2 pb-2 pt-1 sm:px-4 sm:pb-4">
       <div className="relative mx-auto max-w-[48rem]">
         <div
-          className={`flex flex-col gap-1.5 rounded-[1.75rem] border bg-[var(--bg-elevated)] px-3 py-2.5 shadow-sm ${MODE_BORDER[mode]}`}
+          className={`flex flex-col gap-1.5 rounded-3xl border bg-[var(--bg-elevated)] px-2.5 py-2 shadow-sm sm:rounded-[1.75rem] sm:px-3 sm:py-2.5 ${MODE_BORDER[mode]}`}
         >
           <textarea
             ref={textareaRef}

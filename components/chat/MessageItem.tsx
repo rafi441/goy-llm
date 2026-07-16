@@ -85,8 +85,8 @@ export function MessageItem({
 
   if (isUser) {
     return (
-      <div className="group flex flex-col items-end py-4">
-        <div className="max-w-[80%] rounded-3xl bg-[var(--bg-user-msg)] px-4 py-2.5 text-[var(--fg)]">
+      <div className="group flex flex-col items-end py-3 sm:py-4">
+        <div className="max-w-[88%] rounded-3xl bg-[var(--bg-user-msg)] px-3.5 py-2 text-[var(--fg)] sm:max-w-[80%] sm:px-4 sm:py-2.5">
           {editing ? (
             <EditBox draft={draft} setDraft={setDraft} onCancel={() => setEditing(false)} onSave={() => {
               handlers.onEdit(message, draft);
@@ -108,7 +108,7 @@ export function MessageItem({
   }
 
   return (
-    <div className="group flex gap-3 py-4">
+    <div className="group flex gap-2.5 py-3 sm:gap-3 sm:py-4">
       <Avatar path={avatarPath} name={characterName} size={30} />
       <div className="min-w-0 flex-1">
         <div className="mb-1 text-sm font-semibold text-[var(--fg)]">{characterName}</div>

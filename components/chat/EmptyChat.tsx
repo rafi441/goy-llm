@@ -29,7 +29,7 @@ export function EmptyChat({
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4">
       <Avatar path={avatarPath ?? null} name={characterName} size={64} />
-      <h2 className="mb-8 mt-4 text-2xl font-semibold text-[var(--fg)]">{characterName}</h2>
+      <h2 className="mb-6 mt-3 text-xl font-semibold text-[var(--fg)] sm:mb-8 sm:mt-4 sm:text-2xl">{characterName}</h2>
       <div className="grid w-full max-w-2xl grid-cols-1 gap-2 sm:grid-cols-2">
         {starters.map((s, i) => (
           <button

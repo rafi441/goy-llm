@@ -90,7 +90,7 @@ export function MessageList(props: Props) {
         onScroll={onScroll}
         className="scrollbar-thin h-full overflow-y-auto"
       >
-        <div className="mx-auto max-w-3xl px-4" style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
+        <div className="mx-auto max-w-3xl px-2 sm:px-4" style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
           {virtualizer.getVirtualItems().map((vItem) => {
             const m = items[vItem.index]!;
             const isStreamingTarget =

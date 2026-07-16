@@ -43,7 +43,7 @@ export function Header({ chatId }: { chatId: string | null }) {
   };
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-1 border-b border-[var(--border)] bg-[var(--bg)] px-3">
+    <header className="flex h-12 shrink-0 items-center gap-1 border-b border-[var(--border)] bg-[var(--bg)] px-2 sm:h-14 sm:px-3">
       <button
         className="btn btn-ghost btn-sm btn-circle md:hidden"
         onClick={() => setMobileOpen(true)}

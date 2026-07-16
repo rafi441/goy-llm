@@ -64,6 +64,14 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Denser reading + controls on phones */
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+}
+
 @layer base {
   * {
     border-color: var(--border);
@@ -592,6 +600,11 @@ body {
 }
 .prose-chat p {
   margin: 0.5rem 0;
+}
+@media (max-width: 640px) {
+  .prose-chat p {
+    margin: 0.35rem 0;
+  }
 }
 .prose-chat p:first-child {
   margin-top: 0;

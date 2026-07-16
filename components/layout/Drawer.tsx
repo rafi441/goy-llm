@@ -30,7 +30,7 @@ export function Drawer({ chatId }: { chatId: string | null }) {
         aria-hidden
       />
       <aside className="fixed right-0 top-0 z-40 flex h-dvh w-[360px] max-w-[92vw] flex-col overflow-hidden border-l border-[var(--border)] bg-[var(--bg)] shadow-2xl xl:static xl:z-auto xl:h-full xl:shadow-none">
-        <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
+        <div className="flex items-center justify-between border-b border-[var(--border)] px-3 py-2.5 sm:px-4 sm:py-3">
           <span className="text-sm font-semibold text-[var(--fg)]">Controls</span>
           <button className="btn btn-ghost btn-sm btn-circle" onClick={() => setOpen(false)} aria-label="Close panel">
             <X size={16} />
@@ -60,7 +60,7 @@ export function Drawer({ chatId }: { chatId: string | null }) {
           })}
         </div>
 
-        <div className="scrollbar-thin flex-1 overflow-y-auto overflow-x-hidden p-4">
+        <div className="scrollbar-thin flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4">
           {!chatId ? (
             <p className="py-8 text-center text-sm text-[var(--fg-subtle)]">Open a chat to use this panel.</p>
           ) : tab === 'notes' ? (
