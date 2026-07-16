@@ -5,6 +5,7 @@ import { listMessages, currentContent } from '@/lib/db/repos/messages';
 import { getConnection, getDecryptedKey } from '@/lib/db/repos/connections';
 import { getBehavior } from '@/lib/db/repos/settings';
 import { getProvider } from '@/lib/providers';
+import { resolveMacros, makeMacroContext } from '@/lib/prompt/macros';
 import { suggestSchema } from '@/lib/api/schemas';
 import { json, apiError, handleError } from '@/lib/api/respond';
 
@@ -31,21 +32,34 @@ export async function POST(req: Request): Promise<Response> {
 
   const character = chat.character_id ? getCharacter(chat.character_id) : null;
   const persona = chat.persona_id ? getPersona(chat.persona_id) : getDefaultPersona();
+  const ctx = makeMacroContext(character?.name ?? 'Character', persona?.name ?? 'User', persona?.description ?? '');
+  const mm = (s: string | null | undefined) => resolveMacros(s ?? '', ctx);
+
   const recent = listMessages(body.chatId)
-    .filter((m) => m.type !== 'directive')
-    .slice(-6)
-    .map((m) => `${m.role}: ${currentContent(m)}`)
+    .filter((m) => m.type !== 'directive' || m.pinned_directive === 1)
+    .slice(-24)
+    .map((m) =>
+      m.type === 'directive'
+        ? `[Director instruction: ${mm(currentContent(m))}]`
+        : `${m.role}: ${mm(currentContent(m))}`,
+    )
     .join('\n');
 
   const provider = getProvider(connection.type, connection.base_url, getDecryptedKey(connection.id));
   const system =
     'You generate short next-action suggestions for the player of a roleplay chat. ' +
+    'Base them on the character, scenario, standing director instructions, and the conversation so far. ' +
     'Return ONLY a JSON array of 3 to 4 strings, each at most 15 words, phrased from the player\'s point of view. No prose, no explanation.';
   const user =
-    `Character: ${character?.name ?? 'Unknown'}\n` +
-    `Scenario: ${character?.scenario ?? ''}\n` +
-    `Player persona: ${persona?.name ?? 'User'}\n\n` +
-    `Recent messages:\n${recent}\n\nReturn the JSON array now.`;
+    [
+      `Character: ${character?.name ?? 'Unknown'}`,
+      character?.description && `Description: ${mm(character.description)}`,
+      character?.personality && `Personality: ${mm(character.personality)}`,
+      character?.scenario && `Scenario: ${mm(character.scenario)}`,
+      `Player persona: ${persona?.name ?? 'User'}${persona?.description ? ` — ${mm(persona.description)}` : ''}`,
+    ]
+      .filter(Boolean)
+      .join('\n') + `\n\nConversation so far:\n${recent}\n\nReturn the JSON array now.`;
 
   try {
     let full = '';
