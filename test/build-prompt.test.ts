@@ -76,10 +76,22 @@ test('director directive is injected last as ephemeral system message', () => {
   });
   const last = built.messages[built.messages.length - 1]!;
   assert.equal(last.role, 'system');
-  assert.match(last.content, /DIRECTOR NOTE/);
+  assert.match(last.content, /Director note/i);
   assert.match(last.content, /Alice loses her temper/);
   const directorBlock = built.blocks.find((b) => b.label === 'director');
   assert.ok(directorBlock?.ephemeral);
+});
+
+test('director after an assistant turn is delivered as a user turn (avoids empty reply)', () => {
+  const built = buildPrompt({
+    ...base,
+    messages: [msg('m1', 'assistant', 'A greeting from Alice.', 1)],
+    directive: { content: 'she tells me a secret', oobMode: 'system' },
+  });
+  const last = built.messages[built.messages.length - 1]!;
+  assert.equal(last.role, 'user', 'must end on a user turn so the model answers');
+  assert.match(last.content, /she tells me a secret/);
+  assert.match(last.content, /OOC/);
 });
 
 test('director user_prefix fallback uses [OOC:] as a user message', () => {
@@ -90,7 +102,35 @@ test('director user_prefix fallback uses [OOC:] as a user message', () => {
   });
   const last = built.messages[built.messages.length - 1]!;
   assert.equal(last.role, 'user');
-  assert.equal(last.content, '[OOC: make her angry]');
+  assert.match(last.content, /make her angry/);
+  assert.match(last.content, /OOC/);
+  assert.match(last.content, /not my line/i);
+});
+
+test('no consecutive same-role messages are sent (DeepSeek/strict backend safe)', () => {
+  const built = buildPrompt({
+    ...base,
+    messages: [msg('m1', 'user', 'hi', 1), msg('m2', 'assistant', 'hello', 2)],
+    directive: { content: 'raise the stakes', oobMode: 'system' },
+  });
+  for (let i = 1; i < built.messages.length; i++) {
+    assert.notEqual(
+      built.messages[i]!.role,
+      built.messages[i - 1]!.role,
+      `messages ${i - 1} and ${i} share role ${built.messages[i]!.role}`,
+    );
+  }
+});
+
+test('director directive resolves macros', () => {
+  const built = buildPrompt({
+    ...base,
+    messages: [msg('m1', 'user', 'hi', 1)],
+    directive: { content: '{{char}} confronts {{user}} about the letter.', oobMode: 'system' },
+  });
+  const last = built.messages[built.messages.length - 1]!;
+  assert.match(last.content, /Alice confronts Bob about the letter/);
+  assert.doesNotMatch(last.content, /\{\{char\}\}|\{\{user\}\}/);
 });
 
 test('macros resolve at build time', () => {
@@ -127,4 +167,21 @@ test("author's note at depth is inserted inside history", () => {
   });
   const noteIdx = built.messages.findIndex((m) => m.content.includes('raining'));
   assert.ok(noteIdx > 0 && noteIdx < built.messages.length - 1);
+});
+
+test("author's note 'after' is injected at the end of history", () => {
+  const messages = Array.from({ length: 4 }, (_, i) => msg(`m${i}`, i % 2 === 0 ? 'user' : 'assistant', `line ${i}`, i + 1));
+  const built = buildPrompt({
+    ...base,
+    authorNote: 'Keep it tense.',
+    authorNoteEnabled: true,
+    authorNotePosition: 'after',
+    messages,
+  });
+  const noteBlock = built.blocks.find((b) => b.label === 'author_note_depth');
+  assert.ok(noteBlock, 'author note must be present, not dropped');
+  assert.match(noteBlock!.content, /Keep it tense/);
+  const lastLineIdx = built.messages.findIndex((m) => m.content.includes('line 3'));
+  const noteIdx = built.messages.findIndex((m) => m.content.includes('Keep it tense'));
+  assert.ok(noteIdx > lastLineIdx, 'note sits after the last message');
 });
