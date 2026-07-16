@@ -179,7 +179,7 @@ test('as_user genMode adds an impersonation steer for the persona and ends answe
   assert.ok(block?.ephemeral);
 });
 
-test('as_user genMode with an input rewrites/expands the drafted line', () => {
+test('as_user genMode with an input polishes the draft without adding to it', () => {
   const built = buildPrompt({
     ...base,
     genMode: 'as_user',
@@ -188,7 +188,9 @@ test('as_user genMode with an input rewrites/expands the drafted line', () => {
   });
   const last = built.messages[built.messages.length - 1]!;
   assert.match(last.content, /i grab the sword/);
-  assert.match(last.content, /Rewrite and expand/);
+  assert.match(last.content, /improving grammar/);
+  assert.match(last.content, /do NOT add new actions, events, details/);
+  assert.doesNotMatch(last.content, /expand/i);
   assert.match(last.content, /Do not write, narrate, or speak for Alice/);
 });
 

@@ -73,9 +73,10 @@ function buildModeSteer(
     const seed = impersonateInput?.trim();
     if (seed) {
       return (
-        `[OOC — impersonation: ${ctx.user} has drafted a rough version of their next message: "${seed}". ` +
-        `Rewrite and expand it into ${ctx.user}'s full next message — first person as ${ctx.user}, ` +
-        `preserving their intent, wording choices, and any specifics, in the established style. ` +
+        `[OOC — impersonation: ${ctx.user} has written a rough draft of their next message: "${seed}". ` +
+        `Rewrite it as ${ctx.user}'s polished next message — first person as ${ctx.user}, improving grammar, ` +
+        `wording, flow, and immersion in the established style. Keep exactly the same actions, events, and meaning; ` +
+        `do NOT add new actions, events, details, or dialogue beyond what the draft already states. ` +
         `Do not write, narrate, or speak for ${ctx.char}. Stop before ${ctx.char} responds.]`
       );
     }
