@@ -5,6 +5,7 @@ import type {
   Message,
   OobMode,
   Persona,
+  PlayMode,
   PromptBlock,
   PromptOrderKey,
   ProviderMessage,
@@ -36,6 +37,8 @@ export interface BuildPromptArgs {
   authorNotePosition: 'system' | 'depth' | 'after';
   authorNoteDepth: number;
   authorNoteEnabled: boolean;
+  oobMode?: OobMode;
+  genMode?: PlayMode;
 }
 
 function m(text: string, ctx: MacroContext): string {
@@ -58,6 +61,23 @@ function directorTemplate(directive: DirectiveInput, ctx: MacroContext, asUser: 
     `[Director note — out of character, not dialogue. ${content} ` +
     `Now continue in character as ${ctx.char}: write only ${ctx.char}'s narration and dialogue, no meta.${strong}]`
   );
+}
+
+function buildModeSteer(genMode: PlayMode | undefined, ctx: MacroContext): string {
+  if (genMode === 'as_user') {
+    return (
+      `[OOC — impersonation: Write ${ctx.user}'s next message only. ` +
+      `First person as ${ctx.user} — their words, thoughts, and actions in the established style. ` +
+      `Do not write, narrate, or speak for ${ctx.char}. Stop before ${ctx.char} responds.]`
+    );
+  }
+  if (genMode === 'narrator') {
+    return (
+      `[OOC — narration: You are the Narrator. Write neutral third-person narration that advances ` +
+      `the scene — actions, environment, atmosphere. Do not write dialogue for ${ctx.char} or ${ctx.user}.]`
+    );
+  }
+  return '';
 }
 
 function mergeAdjacentRoles(messages: ProviderMessage[]): ProviderMessage[] {
@@ -185,11 +205,18 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
     ? { role: directiveAsUser ? 'user' : 'system', content: directiveContent }
     : null;
 
+  const trailingAsUser = (args.oobMode ?? 'system') === 'user_prefix' || lastMsgRole !== 'user';
+  const modeSteerContent = buildModeSteer(args.genMode, ctx);
+  const modeSteerMsg: ProviderMessage | null = modeSteerContent
+    ? { role: trailingAsUser ? 'user' : 'system', content: modeSteerContent }
+    : null;
+
   const budget = Math.max(256, args.contextLength - args.reservedTokens);
 
   const fixedTokens =
     [...preMessages, ...postMessages].reduce((s, pm) => s + estimateTokens(pm.content) + 4, 0) +
-    (directiveMsg ? estimateTokens(directiveMsg.content) + 4 : 0);
+    (directiveMsg ? estimateTokens(directiveMsg.content) + 4 : 0) +
+    (modeSteerMsg ? estimateTokens(modeSteerMsg.content) + 4 : 0);
 
   const providerHistory = historyMessages.map((msg) => historyToProvider(msg, ctx));
 
@@ -253,11 +280,22 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
     });
   }
 
+  if (modeSteerMsg) {
+    blocks.push({
+      label: 'mode_steer',
+      role: modeSteerMsg.role,
+      content: modeSteerMsg.content,
+      tokens: estimateTokens(modeSteerMsg.content),
+      ephemeral: true,
+    });
+  }
+
   const messages = mergeAdjacentRoles([
     ...preMessages,
     ...finalHistory,
     ...postMessages,
     ...(directiveMsg ? [directiveMsg] : []),
+    ...(modeSteerMsg ? [modeSteerMsg] : []),
   ]);
 
   const totalTokens = messages.reduce((s, pm) => s + estimateTokens(pm.content) + 4, 0) + 2;

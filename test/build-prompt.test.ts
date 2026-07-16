@@ -165,6 +165,36 @@ test('character-only system prompt still renders when global is empty', () => {
   assert.match(built.blocks.find((b) => b.label === 'system_prompt')!.content, /CHAR-ONLY/);
 });
 
+test('as_user genMode adds an impersonation steer for the persona and ends answerable', () => {
+  const built = buildPrompt({
+    ...base,
+    genMode: 'as_user',
+    messages: [msg('m1', 'assistant', 'Alice greets you.', 1)],
+  });
+  const last = built.messages[built.messages.length - 1]!;
+  assert.equal(last.role, 'user', 'after an assistant turn the steer must be a user turn');
+  assert.match(last.content, /Write Bob's next message/);
+  assert.match(last.content, /Do not write, narrate, or speak for Alice/);
+  const block = built.blocks.find((b) => b.label === 'mode_steer');
+  assert.ok(block?.ephemeral);
+});
+
+test('narrator genMode adds a neutral narration steer with no character dialogue', () => {
+  const built = buildPrompt({
+    ...base,
+    genMode: 'narrator',
+    messages: [msg('m1', 'user', 'hi', 1)],
+  });
+  const steer = built.messages[built.messages.length - 1]!;
+  assert.match(steer.content, /You are the Narrator/);
+  assert.match(steer.content, /Do not write dialogue for Alice or Bob/);
+});
+
+test('as_char genMode adds no steer (no regression)', () => {
+  const built = buildPrompt({ ...base, genMode: 'as_char', messages: [msg('m1', 'user', 'hi', 1)] });
+  assert.equal(built.blocks.find((b) => b.label === 'mode_steer'), undefined);
+});
+
 test('truncation drops oldest history but keeps system, character, persona', () => {
   const messages = Array.from({ length: 40 }, (_, i) =>
     msg(`m${i}`, i % 2 === 0 ? 'user' : 'assistant', `Message number ${i} with some filler text to add tokens.`, i + 1),

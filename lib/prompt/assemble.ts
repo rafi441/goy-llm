@@ -1,5 +1,5 @@
 import 'server-only';
-import type { BuiltPrompt, GenConfig, Message, OobMode } from '../types';
+import type { BuiltPrompt, GenConfig, Message, OobMode, PlayMode } from '../types';
 import { getChat } from '../db/repos/chats';
 import { getCharacter } from '../db/repos/characters';
 import { getPersona, getDefaultPersona } from '../db/repos/personas';
@@ -18,6 +18,7 @@ export interface AssembleOptions {
   directive?: { content: string; strong?: boolean } | null;
   excludeMessageIds?: string[];
   upToMessageId?: string;
+  genMode?: PlayMode;
 }
 
 export interface AssembledPrompt {
@@ -113,6 +114,8 @@ export async function assemblePrompt(
     authorNotePosition: chat.author_note_position,
     authorNoteDepth: chat.author_note_depth,
     authorNoteEnabled: chat.author_note_enabled === 1,
+    oobMode,
+    genMode: opts.genMode,
   });
 
   return {
