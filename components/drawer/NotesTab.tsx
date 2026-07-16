@@ -30,6 +30,7 @@ export function NotesTab({ chatId }: { chatId: string }) {
 
   useEffect(() => {
     if (!hydrated || !chat) return;
+    if (note !== debouncedNote) return;
     if (debouncedNote === chat.author_note) return;
     api.apiSend(`/api/chats/${chatId}`, 'PATCH', { author_note: debouncedNote }).then(() =>
       invalidate([qk.chat(chatId)]),
