@@ -128,6 +128,7 @@ export const continueSchema = z.object({
 
 export const suggestSchema = z.object({
   chatId: z.string().min(1),
+  mode: playModeSchema.optional(),
 });
 
 export const branchSchema = z.object({

@@ -15,11 +15,12 @@ export function Suggestions({
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const pushToast = useUi((s) => s.pushToast);
+  const mode = useUi((s) => s.playMode);
 
   const load = async () => {
     setLoading(true);
     try {
-      const res = await api.apiSend<{ suggestions: string[] }>('/api/suggest', 'POST', { chatId });
+      const res = await api.apiSend<{ suggestions: string[] }>('/api/suggest', 'POST', { chatId, mode });
       setSuggestions(res.suggestions);
     } catch (e) {
       pushToast(e instanceof Error ? e.message : 'Could not get suggestions', 'error');

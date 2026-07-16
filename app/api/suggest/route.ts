@@ -4,8 +4,12 @@ import { getPersona, getDefaultPersona } from '@/lib/db/repos/personas';
 import { listMessages, currentContent } from '@/lib/db/repos/messages';
 import { getConnection, getDecryptedKey } from '@/lib/db/repos/connections';
 import { getBehavior } from '@/lib/db/repos/settings';
+import { entriesForCharacter } from '@/lib/db/repos/lorebooks';
 import { getProvider } from '@/lib/providers';
 import { resolveMacros, makeMacroContext } from '@/lib/prompt/macros';
+import { scanLorebook } from '@/lib/prompt/lorebook';
+import { buildSuggestMessages } from '@/lib/prompt/suggest';
+import { estimateTokens } from '@/lib/tokenizer';
 import { suggestSchema } from '@/lib/api/schemas';
 import { json, apiError, handleError } from '@/lib/api/respond';
 
@@ -35,8 +39,10 @@ export async function POST(req: Request): Promise<Response> {
   const ctx = makeMacroContext(character?.name ?? 'Character', persona?.name ?? 'User', persona?.description ?? '');
   const mm = (s: string | null | undefined) => resolveMacros(s ?? '', ctx);
 
-  const recent = listMessages(body.chatId)
-    .filter((m) => m.type !== 'directive' || m.pinned_directive === 1)
+  const msgs = listMessages(body.chatId).filter(
+    (m) => m.type !== 'directive' || m.pinned_directive === 1,
+  );
+  const transcript = msgs
     .slice(-24)
     .map((m) =>
       m.type === 'directive'
@@ -45,22 +51,22 @@ export async function POST(req: Request): Promise<Response> {
     )
     .join('\n');
 
-  const provider = getProvider(connection.type, connection.base_url, getDecryptedKey(connection.id));
-  const system =
-    'You generate short next-action suggestions for the player of a roleplay chat. ' +
-    'Base them on the character, scenario, standing director instructions, and the conversation so far. ' +
-    'Return ONLY a JSON array of 3 to 4 strings, each at most 15 words, phrased from the player\'s point of view. No prose, no explanation.';
-  const user =
-    [
-      `Character: ${character?.name ?? 'Unknown'}`,
-      character?.description && `Description: ${mm(character.description)}`,
-      character?.personality && `Personality: ${mm(character.personality)}`,
-      character?.scenario && `Scenario: ${mm(character.scenario)}`,
-      `Player persona: ${persona?.name ?? 'User'}${persona?.description ? ` — ${mm(persona.description)}` : ''}`,
-    ]
-      .filter(Boolean)
-      .join('\n') + `\n\nConversation so far:\n${recent}\n\nReturn the JSON array now.`;
+  const historyText = msgs.map((m) => currentContent(m));
+  const lore = scanLorebook(entriesForCharacter(chat.character_id), historyText, 512, estimateTokens);
 
+  const { system, user } = buildSuggestMessages(body.mode ?? 'as_user', {
+    charName: character?.name ?? 'Unknown',
+    charDescription: mm(character?.description),
+    charPersonality: mm(character?.personality),
+    charScenario: mm(character?.scenario),
+    personaName: persona?.name ?? 'User',
+    personaDescription: mm(persona?.description),
+    authorNote: chat.author_note_enabled === 1 ? mm(chat.author_note) : '',
+    lorebook: lore.active.map((e) => mm(e.content)),
+    transcript,
+  });
+
+  const provider = getProvider(connection.type, connection.base_url, getDecryptedKey(connection.id));
   try {
     let full = '';
     for await (const chunk of provider.chat({
