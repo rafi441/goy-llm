@@ -28,7 +28,7 @@ export function DescribePopover({ chatId }: { chatId: string }) {
     setLoading(true);
     try {
       await api.apiSend(`/api/describe`, 'POST', { chatId, aspect: aspect.trim(), mode });
-      invalidate([qk.messages(chatId)]);
+      invalidate([qk.messages(chatId), qk.chat(chatId)]);
       setCustom('');
       setOpen(false);
     } catch (e) {
