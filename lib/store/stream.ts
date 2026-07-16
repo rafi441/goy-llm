@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 
-export type StreamKind = 'new' | 'regen' | 'continue';
+export type StreamKind = 'new' | 'regen' | 'continue' | 'impersonate';
 export type StreamPhase = 'idle' | 'loading' | 'streaming' | 'error';
 
 interface StreamState {
@@ -48,6 +48,12 @@ export const useStream = create<StreamState>((set, get) => ({
 export function streamStatus(phase: StreamPhase, kind: StreamKind | null): string {
   if (phase === 'loading') return 'Loading';
   if (phase === 'streaming')
-    return kind === 'regen' ? 'Regenerating' : kind === 'continue' ? 'Continuing' : 'Generating';
+    return kind === 'regen'
+      ? 'Regenerating'
+      : kind === 'continue'
+        ? 'Continuing'
+        : kind === 'impersonate'
+          ? 'Impersonating'
+          : 'Generating';
   return '';
 }

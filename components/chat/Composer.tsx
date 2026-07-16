@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowUp, Square, Play, Plus } from 'lucide-react';
+import { ArrowUp, Square, Play, Plus, Wand2 } from 'lucide-react';
 import { useChat, api } from '@/lib/client/hooks';
 import { useUi } from '@/lib/store/ui';
 import { estimateTokens } from '@/lib/tokenizer';
@@ -18,6 +18,7 @@ interface Props {
   setDraft: (v: string) => void;
   onSubmit: (content: string, mode: PlayMode) => void;
   onGenerate: (directive?: { content: string; strong?: boolean }) => void;
+  onImpersonate: () => void;
   running: boolean;
   status: string;
   onStop: () => void;
@@ -35,7 +36,7 @@ const MODE_BORDER: Record<PlayMode, string> = {
   narrator: 'border-[var(--color-info)]/50',
 };
 
-export function Composer({ chatId, draft, setDraft, onSubmit, onGenerate, running, status, onStop }: Props) {
+export function Composer({ chatId, draft, setDraft, onSubmit, onGenerate, onImpersonate, running, status, onStop }: Props) {
   const mode = useUi((s) => s.playMode);
   const { data } = useChat(chatId);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -107,14 +108,24 @@ export function Composer({ chatId, draft, setDraft, onSubmit, onGenerate, runnin
                   </button>
                 </div>
               ) : mode === 'as_user' ? (
-                <button
-                  className="btn btn-circle btn-sm btn-primary"
-                  onClick={submit}
-                  disabled={!draft.trim()}
-                  aria-label="Send"
-                >
-                  <ArrowUp size={16} />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    className="btn btn-ghost btn-sm btn-circle text-[var(--fg-muted)]"
+                    onClick={onImpersonate}
+                    aria-label="Impersonate"
+                    title="Let the AI draft your next message (fills the box)"
+                  >
+                    <Wand2 size={16} />
+                  </button>
+                  <button
+                    className="btn btn-circle btn-sm btn-primary"
+                    onClick={submit}
+                    disabled={!draft.trim()}
+                    aria-label="Send"
+                  >
+                    <ArrowUp size={16} />
+                  </button>
+                </div>
               ) : (
                 <div className="flex gap-1">
                   <button

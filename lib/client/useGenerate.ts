@@ -82,6 +82,7 @@ export function useGenerate() {
       useStream.getState().begin(chatId, kind, targetMessageId, controller, seed);
 
       const result = await drive(url, body, controller, (d) => useStream.getState().append(d));
+      const text = useStream.getState().text;
 
       if (result.error) {
         pushToast(result.error, 'error');
@@ -91,7 +92,7 @@ export function useGenerate() {
       qc.invalidateQueries({ queryKey: qk.messages(chatId) });
       qc.invalidateQueries({ queryKey: qk.chat(chatId) });
       qc.invalidateQueries({ queryKey: qk.chats });
-      return result;
+      return { ...result, text };
     },
     [qc, pushToast],
   );
@@ -102,9 +103,17 @@ export function useGenerate() {
     [run],
   );
 
-  const generate = useCallback(
-    (chatId: string, directive?: { content: string; strong?: boolean } | null) =>
-      run('/api/chat', { chatId, mode: 'as_user', directive: directive ?? null }, chatId, 'new', null),
+  const generateScene = useCallback(
+    (
+      chatId: string,
+      genMode: PlayMode,
+      directive?: { content: string; strong?: boolean } | null,
+    ) => run('/api/chat', { chatId, genMode, directive: directive ?? null }, chatId, 'new', null),
+    [run],
+  );
+
+  const impersonate = useCallback(
+    (chatId: string) => run('/api/chat', { chatId, genMode: 'as_user' }, chatId, 'impersonate', null),
     [run],
   );
 
@@ -122,5 +131,5 @@ export function useGenerate() {
 
   const stop = useCallback(() => useStream.getState().abort(), []);
 
-  return { send, generate, regenerate, continueMessage, stop, stream };
+  return { send, generateScene, impersonate, regenerate, continueMessage, stop, stream };
 }

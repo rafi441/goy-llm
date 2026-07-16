@@ -15,9 +15,10 @@ export function ChatView({ chatId }: { chatId: string }) {
   const { data, isLoading } = useChat(chatId);
   const character = useCharacter(data?.chat.character_id ?? null);
   const invalidate = useInvalidate();
-  const { send, regenerate, continueMessage, stop } = useGenerate();
+  const { send, generateScene, impersonate, regenerate, continueMessage, stop } = useGenerate();
   const stream = useStream();
   const pushToast = useUi((s) => s.pushToast);
+  const playMode = useUi((s) => s.playMode);
 
   const [draft, setDraft] = useState('');
   const titledRef = useRef(false);
@@ -60,10 +61,10 @@ export function ChatView({ chatId }: { chatId: string }) {
         invalidate([qk.messages(chatId), qk.chat(chatId)]);
         await send(chatId, '', 'as_user');
       } else {
-        const role = mode === 'narrator' ? 'system' : 'assistant';
+        const isNarration = mode === 'narrator';
         await api.apiSend(`/api/chats/${chatId}/messages`, 'POST', {
-          role,
-          type: mode === 'narrator' ? 'narration' : 'chat',
+          role: 'assistant',
+          type: isNarration ? 'narration' : 'chat',
           mode,
           content,
         });
@@ -79,10 +80,20 @@ export function ChatView({ chatId }: { chatId: string }) {
         pushToast('Pick a model first (top-left).', 'error');
         return;
       }
-      void send(chatId, '', 'as_user', directive ?? null);
+      const genMode = playMode === 'as_user' ? 'as_char' : playMode;
+      void generateScene(chatId, genMode, directive ?? null);
     },
-    [chat, chatId, pushToast, send],
+    [chat, chatId, pushToast, generateScene, playMode],
   );
+
+  const onImpersonate = useCallback(async () => {
+    if (!chat?.model_id) {
+      pushToast('Pick a model first (top-left).', 'error');
+      return;
+    }
+    const r = await impersonate(chatId);
+    if (r && !r.error && !r.aborted && r.text.trim()) setDraft(r.text.trim());
+  }, [chat, chatId, pushToast, impersonate]);
 
   const onRegenerate = useCallback(
     (m: Message) => regenerate(chatId, m.id),
@@ -190,6 +201,7 @@ export function ChatView({ chatId }: { chatId: string }) {
         setDraft={setDraft}
         onSubmit={onSubmit}
         onGenerate={onContinueScene}
+        onImpersonate={onImpersonate}
         running={stream.running && stream.chatId === chatId}
         status={stream.chatId === chatId ? streamStatus(stream.phase, stream.kind) : ''}
         onStop={stop}
