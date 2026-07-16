@@ -37,6 +37,7 @@ export async function POST(req: Request): Promise<Response> {
     const assembled = await assemblePrompt(body.chatId, {
       directive: body.directive ?? null,
       genMode,
+      impersonateInput: body.impersonateInput,
     });
     return streamChat({
       assembled,

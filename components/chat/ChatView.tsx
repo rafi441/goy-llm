@@ -97,9 +97,9 @@ export function ChatView({ chatId }: { chatId: string }) {
       pushToast('Pick a model first (top-left).', 'error');
       return;
     }
-    const r = await impersonate(chatId);
+    const r = await impersonate(chatId, draft.trim() || undefined);
     if (r && !r.error && !r.aborted && r.text.trim()) setDraft(r.text.trim());
-  }, [chat, chatId, pushToast, impersonate]);
+  }, [chat, chatId, pushToast, impersonate, draft]);
 
   const onRegenerate = useCallback(
     (m: Message) => regenerate(chatId, m.id),

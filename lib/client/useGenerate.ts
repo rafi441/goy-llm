@@ -113,7 +113,8 @@ export function useGenerate() {
   );
 
   const impersonate = useCallback(
-    (chatId: string) => run('/api/chat', { chatId, genMode: 'as_user' }, chatId, 'impersonate', null),
+    (chatId: string, input?: string) =>
+      run('/api/chat', { chatId, genMode: 'as_user', impersonateInput: input }, chatId, 'impersonate', null),
     [run],
   );
 

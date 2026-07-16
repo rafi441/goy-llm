@@ -179,6 +179,31 @@ test('as_user genMode adds an impersonation steer for the persona and ends answe
   assert.ok(block?.ephemeral);
 });
 
+test('as_user genMode with an input rewrites/expands the drafted line', () => {
+  const built = buildPrompt({
+    ...base,
+    genMode: 'as_user',
+    impersonateInput: 'i grab the sword',
+    messages: [msg('m1', 'assistant', 'Alice greets you.', 1)],
+  });
+  const last = built.messages[built.messages.length - 1]!;
+  assert.match(last.content, /i grab the sword/);
+  assert.match(last.content, /Rewrite and expand/);
+  assert.match(last.content, /Do not write, narrate, or speak for Alice/);
+});
+
+test('as_user genMode with a blank input keeps the free-generation steer', () => {
+  const built = buildPrompt({
+    ...base,
+    genMode: 'as_user',
+    impersonateInput: '   ',
+    messages: [msg('m1', 'assistant', 'Alice greets you.', 1)],
+  });
+  const last = built.messages[built.messages.length - 1]!;
+  assert.match(last.content, /Write Bob's next message only/);
+  assert.doesNotMatch(last.content, /Rewrite and expand/);
+});
+
 test('narrator genMode adds a neutral narration steer with no character dialogue', () => {
   const built = buildPrompt({
     ...base,

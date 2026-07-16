@@ -39,6 +39,7 @@ export interface BuildPromptArgs {
   authorNoteEnabled: boolean;
   oobMode?: OobMode;
   genMode?: PlayMode;
+  impersonateInput?: string;
 }
 
 function m(text: string, ctx: MacroContext): string {
@@ -63,8 +64,21 @@ function directorTemplate(directive: DirectiveInput, ctx: MacroContext, asUser: 
   );
 }
 
-function buildModeSteer(genMode: PlayMode | undefined, ctx: MacroContext): string {
+function buildModeSteer(
+  genMode: PlayMode | undefined,
+  ctx: MacroContext,
+  impersonateInput?: string,
+): string {
   if (genMode === 'as_user') {
+    const seed = impersonateInput?.trim();
+    if (seed) {
+      return (
+        `[OOC — impersonation: ${ctx.user} has drafted a rough version of their next message: "${seed}". ` +
+        `Rewrite and expand it into ${ctx.user}'s full next message — first person as ${ctx.user}, ` +
+        `preserving their intent, wording choices, and any specifics, in the established style. ` +
+        `Do not write, narrate, or speak for ${ctx.char}. Stop before ${ctx.char} responds.]`
+      );
+    }
     return (
       `[OOC — impersonation: Write ${ctx.user}'s next message only. ` +
       `First person as ${ctx.user} — their words, thoughts, and actions in the established style. ` +
@@ -213,7 +227,7 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
     : null;
 
   const trailingAsUser = (args.oobMode ?? 'system') === 'user_prefix' || lastMsgRole !== 'user';
-  const modeSteerContent = buildModeSteer(args.genMode, ctx);
+  const modeSteerContent = buildModeSteer(args.genMode, ctx, args.impersonateInput);
   const modeSteerMsg: ProviderMessage | null = modeSteerContent
     ? { role: trailingAsUser ? 'user' : 'system', content: modeSteerContent }
     : null;

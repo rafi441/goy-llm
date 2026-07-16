@@ -110,6 +110,7 @@ export const chatMessageSchema = z.object({
   content: z.string().optional(),
   mode: playModeSchema.optional(),
   genMode: playModeSchema.optional(),
+  impersonateInput: z.string().optional(),
   directive: z
     .object({ content: z.string().min(1), strong: z.boolean().optional() })
     .nullable()

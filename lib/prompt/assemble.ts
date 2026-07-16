@@ -19,6 +19,7 @@ export interface AssembleOptions {
   excludeMessageIds?: string[];
   upToMessageId?: string;
   genMode?: PlayMode;
+  impersonateInput?: string;
 }
 
 export interface AssembledPrompt {
@@ -116,6 +117,7 @@ export async function assemblePrompt(
     authorNoteEnabled: chat.author_note_enabled === 1,
     oobMode,
     genMode: opts.genMode,
+    impersonateInput: opts.impersonateInput,
   });
 
   return {
