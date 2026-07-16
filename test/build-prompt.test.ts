@@ -208,6 +208,18 @@ test('pinned standing directive is framed as an out-of-character note, not raw',
   assert.match(framed.content, /out of character/i);
 });
 
+test('describe asides are excluded from the prompt entirely', () => {
+  const built = buildPrompt({
+    ...base,
+    messages: [
+      msg('m1', 'user', 'hi', 1),
+      { ...msg('d1', 'system', 'Alice wears a red cloak.', 2), type: 'describe' },
+      msg('m2', 'assistant', 'Alice smiles.', 3),
+    ],
+  });
+  assert.ok(!built.messages.some((pm) => pm.content.includes('red cloak')));
+});
+
 test('narration history is re-injected as an assistant turn, never a lone system turn', () => {
   const built = buildPrompt({
     ...base,

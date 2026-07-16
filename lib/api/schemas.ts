@@ -131,6 +131,12 @@ export const suggestSchema = z.object({
   mode: playModeSchema.optional(),
 });
 
+export const describeSchema = z.object({
+  chatId: z.string().min(1),
+  aspect: z.string().min(1).max(80),
+  mode: playModeSchema.optional(),
+});
+
 export const branchSchema = z.object({
   messageId: z.string().min(1),
 });

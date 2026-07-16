@@ -127,7 +127,7 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
   const char = args.character;
 
   const historyMessages = args.messages.filter(
-    (msg) => msg.type !== 'directive' || msg.pinned_directive === 1,
+    (msg) => msg.type !== 'describe' && (msg.type !== 'directive' || msg.pinned_directive === 1),
   );
   const historyText = historyMessages.map((msg) => currentContent(msg));
 

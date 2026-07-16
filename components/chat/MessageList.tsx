@@ -6,6 +6,7 @@ import { ArrowDown } from 'lucide-react';
 import { useStream, streamStatus } from '@/lib/store/stream';
 import { MessageItem } from './MessageItem';
 import { DirectiveCard } from '@/components/director/DirectiveCard';
+import { DescribeCard } from './DescribeCard';
 import type { Message } from '@/lib/types';
 
 export interface MessageHandlers {
@@ -111,7 +112,14 @@ export function MessageList(props: Props) {
                   transform: `translateY(${vItem.start}px)`,
                 }}
               >
-                {m.type === 'directive' ? (
+                {m.type === 'describe' ? (
+                  <DescribeCard
+                    message={m}
+                    characterName={props.characterName}
+                    userName={props.userName}
+                    onDelete={() => props.onDelete(m, false)}
+                  />
+                ) : m.type === 'directive' ? (
                   <DirectiveCard
                     message={m}
                     characterName={props.characterName}

@@ -8,6 +8,7 @@ import { useUi } from '@/lib/store/ui';
 import { estimateTokens } from '@/lib/tokenizer';
 import { ModeChips } from './ModeChips';
 import { DirectorPopover } from '@/components/director/DirectorPopover';
+import { DescribePopover } from '@/components/director/DescribePopover';
 import { Suggestions } from '@/components/director/Suggestions';
 import { TokenBar } from '@/components/ui/TokenBar';
 import type { PlayMode } from '@/lib/types';
@@ -90,6 +91,7 @@ export function Composer({ chatId, draft, setDraft, onSubmit, onGenerate, onImpe
             <div className="flex h-9 items-center gap-0.5 rounded-full bg-[var(--bg)] p-0.5">
               <DirectorPopover chatId={chatId} onGenerate={onGenerate} />
               <Suggestions chatId={chatId} onPick={(t) => setDraft(t)} />
+              <DescribePopover chatId={chatId} />
             </div>
 
             <ModeChips />
