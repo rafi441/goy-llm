@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Sparkles, X } from 'lucide-react';
 import { api } from '@/lib/client/hooks';
 import { useUi } from '@/lib/store/ui';
@@ -16,6 +16,9 @@ export function Suggestions({
   const [loading, setLoading] = useState(false);
   const pushToast = useUi((s) => s.pushToast);
   const mode = useUi((s) => s.playMode);
+
+  // clear stale suggestions when the play mode changes — they no longer match the role
+  useEffect(() => setSuggestions([]), [mode]);
 
   const load = async () => {
     setLoading(true);
