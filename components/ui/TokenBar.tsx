@@ -22,7 +22,7 @@ export function TokenBar({ used, budget, compact }: TokenBarProps) {
       <div className="h-1.5 w-16 overflow-hidden rounded-full bg-[var(--bg-hover)]">
         <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: color }} />
       </div>
-      <span className="tabular-nums text-[var(--fg-subtle)]">
+      <span className={`tabular-nums text-[var(--fg-subtle)] ${compact ? 'hidden sm:inline' : ''}`}>
         {fmt(used)} / {fmt(budget)}
       </span>
     </div>
