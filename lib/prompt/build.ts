@@ -111,10 +111,10 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
     tokens: estimateTokens(e.content),
   }));
 
-  const systemContent =
-    char && char.system_prompt.trim()
-      ? m(char.system_prompt, ctx)
-      : m(args.systemPrompt, ctx);
+  const systemContent = [m(args.systemPrompt, ctx), char ? m(char.system_prompt, ctx) : '']
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .join('\n\n');
 
   const blockContent: Record<PromptOrderKey, string> = {
     system_prompt: systemContent,

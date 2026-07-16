@@ -139,6 +139,32 @@ test('macros resolve at build time', () => {
   assert.match(charBlock!.content, /adores Bob/);
 });
 
+test('global system prompt is the baseline and character prompt appends after it', () => {
+  const built = buildPrompt({
+    ...base,
+    systemPrompt: 'You are a roleplay engine.',
+    character: char({ system_prompt: 'Speak in archaic English.' }),
+    messages: [msg('m1', 'user', 'hi', 1)],
+  });
+  const sys = built.blocks.find((b) => b.label === 'system_prompt')!;
+  assert.match(sys.content, /You are a roleplay engine\./);
+  assert.match(sys.content, /Speak in archaic English\./);
+  assert.ok(
+    sys.content.indexOf('roleplay engine') < sys.content.indexOf('archaic'),
+    'global must come before the character prompt',
+  );
+});
+
+test('character-only system prompt still renders when global is empty', () => {
+  const built = buildPrompt({
+    ...base,
+    systemPrompt: '',
+    character: char({ system_prompt: 'CHAR-ONLY' }),
+    messages: [msg('m1', 'user', 'hi', 1)],
+  });
+  assert.match(built.blocks.find((b) => b.label === 'system_prompt')!.content, /CHAR-ONLY/);
+});
+
 test('truncation drops oldest history but keeps system, character, persona', () => {
   const messages = Array.from({ length: 40 }, (_, i) =>
     msg(`m${i}`, i % 2 === 0 ? 'user' : 'assistant', `Message number ${i} with some filler text to add tokens.`, i + 1),
