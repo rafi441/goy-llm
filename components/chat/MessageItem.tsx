@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Copy,
   Pencil,
@@ -17,12 +17,14 @@ import {
 import { Avatar } from '@/components/ui/Avatar';
 import { MarkdownMessage } from './MarkdownMessage';
 import { useUi } from '@/lib/store/ui';
+import { renderMacros } from '@/lib/prompt/macros';
 import type { Message } from '@/lib/types';
 import type { MessageHandlers } from './MessageList';
 
 interface Props {
   message: Message;
   characterName: string;
+  userName: string;
   avatarPath: string | null;
   isLastAssistant: boolean;
   streamingText: string | null;
@@ -34,6 +36,7 @@ interface Props {
 export function MessageItem({
   message,
   characterName,
+  userName,
   avatarPath,
   isLastAssistant,
   streamingText,
@@ -45,7 +48,11 @@ export function MessageItem({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
 
-  const content = streamingText ?? message.swipes[message.swipe_index] ?? '';
+  const raw = streamingText ?? message.swipes[message.swipe_index] ?? '';
+  const content = useMemo(
+    () => renderMacros(raw, characterName, userName),
+    [raw, characterName, userName],
+  );
   const isUser = message.role === 'user';
   const isNarration = message.type === 'narration' || message.mode === 'narrator';
   const streaming = streamingText !== null || ephemeral;

@@ -1,6 +1,7 @@
 'use client';
 
 import { Avatar } from '@/components/ui/Avatar';
+import { renderMacros } from '@/lib/prompt/macros';
 
 const DEFAULT_STARTERS = [
   'Set the scene and introduce yourself.',
@@ -11,16 +12,20 @@ const DEFAULT_STARTERS = [
 
 export function EmptyChat({
   characterName,
+  userName,
   avatarPath,
   greetings,
   onPick,
 }: {
   characterName: string;
+  userName: string;
   avatarPath?: string | null;
   greetings: string[];
   onPick: (text: string) => void;
 }) {
-  const starters = greetings.length > 0 ? greetings.slice(0, 4) : DEFAULT_STARTERS;
+  const starters = (greetings.length > 0 ? greetings.slice(0, 4) : DEFAULT_STARTERS).map((s) =>
+    renderMacros(s, characterName, userName),
+  );
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4">
       <Avatar path={avatarPath ?? null} name={characterName} size={64} />

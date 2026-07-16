@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useChat, useCharacter, useInvalidate, qk, api } from '@/lib/client/hooks';
+import { useChat, useCharacter, usePersonas, useInvalidate, qk, api } from '@/lib/client/hooks';
 import { useGenerate } from '@/lib/client/useGenerate';
 import { useStream, streamStatus } from '@/lib/store/stream';
 import { useUi } from '@/lib/store/ui';
@@ -14,6 +14,7 @@ import type { Message, PlayMode } from '@/lib/types';
 export function ChatView({ chatId }: { chatId: string }) {
   const { data, isLoading } = useChat(chatId);
   const character = useCharacter(data?.chat.character_id ?? null);
+  const personas = usePersonas();
   const invalidate = useInvalidate();
   const { send, generateScene, impersonate, regenerate, continueMessage, stop } = useGenerate();
   const stream = useStream();
@@ -25,6 +26,11 @@ export function ChatView({ chatId }: { chatId: string }) {
 
   const messages = data?.messages ?? [];
   const chat = data?.chat;
+  const characterName = character.data?.name ?? 'Character';
+  const userName =
+    personas.data?.find((p) => p.id === chat?.persona_id)?.name ??
+    personas.data?.find((p) => p.is_default)?.name ??
+    'User';
 
   useEffect(() => {
     titledRef.current = false;
@@ -176,7 +182,8 @@ export function ChatView({ chatId }: { chatId: string }) {
         <MessageList
           chatId={chatId}
           messages={messages}
-          characterName={character.data?.name ?? 'Character'}
+          characterName={characterName}
+          userName={userName}
           avatarPath={character.data?.avatar_path ?? null}
           onRegenerate={onRegenerate}
           onContinue={onContinueMessage}
@@ -189,6 +196,7 @@ export function ChatView({ chatId }: { chatId: string }) {
       ) : (
         <EmptyChat
           characterName={character.data?.name ?? 'New scene'}
+          userName={userName}
           avatarPath={character.data?.avatar_path ?? null}
           greetings={character.data?.alternate_greetings ?? []}
           onPick={(text) => setDraft(text)}

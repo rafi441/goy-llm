@@ -1,18 +1,23 @@
 'use client';
 
 import { Clapperboard, Pin, PinOff, Trash2 } from 'lucide-react';
+import { renderMacros } from '@/lib/prompt/macros';
 import type { Message } from '@/lib/types';
 
 export function DirectiveCard({
   message,
+  characterName,
+  userName,
   onTogglePin,
   onDelete,
 }: {
   message: Message;
+  characterName: string;
+  userName: string;
   onTogglePin: (pinned: boolean) => void;
   onDelete: () => void;
 }) {
-  const content = message.swipes[message.swipe_index] ?? '';
+  const content = renderMacros(message.swipes[message.swipe_index] ?? '', characterName, userName);
   const pinned = message.pinned_directive === 1;
   return (
     <div className="group py-3">

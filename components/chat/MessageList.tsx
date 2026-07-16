@@ -22,6 +22,7 @@ interface Props extends MessageHandlers {
   chatId: string;
   messages: Message[];
   characterName: string;
+  userName: string;
   avatarPath: string | null;
 }
 
@@ -113,6 +114,8 @@ export function MessageList(props: Props) {
                 {m.type === 'directive' ? (
                   <DirectiveCard
                     message={m}
+                    characterName={props.characterName}
+                    userName={props.userName}
                     onTogglePin={(pinned) => props.onDirectiveToggle(m, pinned)}
                     onDelete={() => props.onDelete(m, false)}
                   />
@@ -120,6 +123,7 @@ export function MessageList(props: Props) {
                   <MessageItem
                     message={m}
                     characterName={props.characterName}
+                    userName={props.userName}
                     avatarPath={props.avatarPath}
                     isLastAssistant={vItem.index === lastAssistantIndex}
                     streamingText={isStreamingTarget ? stream.text : null}

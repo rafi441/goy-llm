@@ -39,3 +39,8 @@ export function makeMacroContext(
 ): MacroContext {
   return { char, user, persona, now, rng };
 }
+
+/** Resolve display macros ({{char}}, {{user}}, …) for rendered text. Idempotent. */
+export function renderMacros(text: string, char: string, user: string): string {
+  return resolveMacros(text, makeMacroContext(char, user, user));
+}
