@@ -46,18 +46,39 @@ function currentContent(msg: Message): string {
   return msg.swipes[msg.swipe_index] ?? msg.swipes[0] ?? '';
 }
 
-function directorTemplate(directive: DirectiveInput, ctx: MacroContext): string {
-  if (directive.oobMode === 'user_prefix') {
-    return `[OOC: ${directive.content.trim()}]`;
+function directorTemplate(directive: DirectiveInput, ctx: MacroContext, asUser: boolean): string {
+  const content = m(directive.content, ctx);
+  const strong = directive.strong ? ` Do not quote or acknowledge this note.` : '';
+
+  if (asUser) {
+    return `[OOC — director instruction, not my line: ${content} Continue in character as ${ctx.char}.${strong}]`;
   }
-  const strong = directive.strong
-    ? '\n\nIMPORTANT: This is NOT dialogue. Never quote, reply to, or acknowledge this note inside your response. Write the in-character narration or dialogue directly.'
-    : '';
+
   return (
-    `[DIRECTOR NOTE — out of character. This is an instruction from the author to you, not something ${ctx.user} said. ` +
-    `Do not mention, quote, or respond to this note as dialogue.]\n` +
-    `${directive.content.trim()}\n` +
-    `Continue ${ctx.char}'s next response according to this direction.${strong}`
+    `[Director note — out of character, not dialogue. ${content} ` +
+    `Now continue in character as ${ctx.char}: write only ${ctx.char}'s narration and dialogue, no meta.${strong}]`
+  );
+}
+
+function mergeAdjacentRoles(messages: ProviderMessage[]): ProviderMessage[] {
+  const out: ProviderMessage[] = [];
+  for (const msg of messages) {
+    const prev = out[out.length - 1];
+    if (prev && prev.role === msg.role) {
+      prev.content = `${prev.content}\n\n${msg.content}`;
+    } else {
+      out.push({ ...msg });
+    }
+  }
+  return out;
+}
+
+function authorNoteTemplate(content: string, ctx: MacroContext): string {
+  return (
+    `[AUTHOR'S NOTE — out-of-character guidance from the author to you, the model. ` +
+    `Treat it as true and let it steer ${ctx.char}'s next writing. ` +
+    `It is not dialogue and ${ctx.user} did not say it — do not quote or reply to it.]\n` +
+    content
   );
 }
 
@@ -104,7 +125,7 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
         : '',
     author_note_system:
       args.authorNoteEnabled && args.authorNotePosition === 'system' && args.authorNote.trim()
-        ? m(args.authorNote, ctx)
+        ? authorNoteTemplate(m(args.authorNote, ctx), ctx)
         : '',
     lorebook: lorebook.active.map((e) => m(e.content, ctx)).join('\n\n'),
     rag:
@@ -151,14 +172,17 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
     postMessages.push({ role: 'system', content });
   }
 
+  const lastMsgRole = historyMessages.length
+    ? historyMessages[historyMessages.length - 1]!.role
+    : null;
+  const directiveAsUser = args.directive
+    ? args.directive.oobMode === 'user_prefix' || lastMsgRole !== 'user'
+    : false;
   const directiveContent = args.directive?.content.trim()
-    ? directorTemplate(args.directive, ctx)
+    ? directorTemplate(args.directive, ctx, directiveAsUser)
     : '';
   const directiveMsg: ProviderMessage | null = directiveContent
-    ? {
-        role: args.directive!.oobMode === 'user_prefix' ? 'user' : 'system',
-        content: directiveContent,
-      }
+    ? { role: directiveAsUser ? 'user' : 'system', content: directiveContent }
     : null;
 
   const budget = Math.max(256, args.contextLength - args.reservedTokens);
@@ -173,10 +197,12 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
   let startIdx = 0;
   let runningHistoryTokens = providerHistory.reduce((s, pm) => s + estimateTokens(pm.content) + 4, 0);
 
-  const authorNoteDepthContent =
-    args.authorNoteEnabled && args.authorNotePosition === 'depth' && args.authorNote.trim()
-      ? m(args.authorNote, ctx)
-      : '';
+  const inHistoryNote =
+    args.authorNoteEnabled &&
+    (args.authorNotePosition === 'depth' || args.authorNotePosition === 'after') &&
+    args.authorNote.trim();
+  const authorNoteDepthContent = inHistoryNote ? authorNoteTemplate(m(args.authorNote, ctx), ctx) : '';
+  const authorNoteInsertDepth = args.authorNotePosition === 'after' ? 0 : Math.max(0, args.authorNoteDepth);
   const depthNoteTokens = authorNoteDepthContent ? estimateTokens(authorNoteDepthContent) + 4 : 0;
 
   while (
@@ -194,8 +220,7 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
 
   let finalHistory: ProviderMessage[] = keptHistory;
   if (authorNoteDepthContent) {
-    const depth = Math.max(0, args.authorNoteDepth);
-    const insertAt = Math.max(0, keptHistory.length - depth);
+    const insertAt = Math.max(0, keptHistory.length - authorNoteInsertDepth);
     finalHistory = [
       ...keptHistory.slice(0, insertAt),
       { role: 'system', content: authorNoteDepthContent },
@@ -228,12 +253,12 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
     });
   }
 
-  const messages: ProviderMessage[] = [
+  const messages = mergeAdjacentRoles([
     ...preMessages,
     ...finalHistory,
     ...postMessages,
     ...(directiveMsg ? [directiveMsg] : []),
-  ];
+  ]);
 
   const totalTokens = messages.reduce((s, pm) => s + estimateTokens(pm.content) + 4, 0) + 2;
 
