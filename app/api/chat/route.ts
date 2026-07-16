@@ -2,6 +2,7 @@ import { assemblePrompt } from '@/lib/prompt/assemble';
 import { createMessage } from '@/lib/db/repos/messages';
 import { getChat } from '@/lib/db/repos/chats';
 import { streamChat } from '@/lib/api/stream';
+import { generationFinalizeInput } from '@/lib/api/finalize';
 import { chatMessageSchema } from '@/lib/api/schemas';
 import { apiError, handleError } from '@/lib/api/respond';
 
@@ -30,21 +31,20 @@ export async function POST(req: Request): Promise<Response> {
     });
   }
 
+  const genMode = body.genMode ?? 'as_char';
+
   try {
     const assembled = await assemblePrompt(body.chatId, {
       directive: body.directive ?? null,
+      genMode,
     });
     return streamChat({
       assembled,
       signal: req.signal,
       finalize: (fullText) => {
-        const msg = createMessage({
-          chat_id: body.chatId,
-          role: 'assistant',
-          type: 'chat',
-          mode: null,
-          swipes: [fullText],
-        });
+        const input = generationFinalizeInput(genMode, body.chatId, fullText);
+        if (!input) return null;
+        const msg = createMessage(input);
         return { messageId: msg.id, swipeIndex: 0 };
       },
     });

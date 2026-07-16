@@ -13,7 +13,7 @@ export interface StreamChatOptions {
   assembled: AssembledPrompt;
   signal: AbortSignal;
   seedText?: string;
-  finalize: (fullText: string, aborted: boolean) => FinalizeResult;
+  finalize: (fullText: string, aborted: boolean) => FinalizeResult | null;
 }
 
 function sse(obj: unknown): Uint8Array {
@@ -67,7 +67,7 @@ export function streamChat(opts: StreamChatOptions): Response {
         } else {
           const message = e instanceof Error ? e.message : 'Generation failed';
           const result = opts.finalize(full, true);
-          controller.enqueue(sse({ error: message, messageId: result.messageId }));
+          controller.enqueue(sse({ error: message, messageId: result?.messageId }));
           controller.close();
           return;
         }
@@ -86,7 +86,7 @@ export function streamChat(opts: StreamChatOptions): Response {
 
       const result = opts.finalize(full, aborted);
       controller.enqueue(
-        sse({ done: true, aborted, messageId: result.messageId, swipeIndex: result.swipeIndex }),
+        sse({ done: true, aborted, messageId: result?.messageId, swipeIndex: result?.swipeIndex }),
       );
       controller.close();
     },
