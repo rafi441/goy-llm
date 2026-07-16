@@ -1,8 +1,9 @@
 import { listChats, createChat } from '@/lib/db/repos/chats';
 import { getDefaultPreset } from '@/lib/db/repos/presets';
 import { getCharacter } from '@/lib/db/repos/characters';
-import { getDefaultPersona } from '@/lib/db/repos/personas';
+import { getDefaultPersona, getPersona } from '@/lib/db/repos/personas';
 import { createMessage } from '@/lib/db/repos/messages';
+import { resolveMacros, makeMacroContext } from '@/lib/prompt/macros';
 import { chatCreateSchema } from '@/lib/api/schemas';
 import { json, handleError, parseBody } from '@/lib/api/respond';
 
@@ -28,7 +29,15 @@ export async function POST(req: Request): Promise<Response> {
     if (body.character_id) {
       const character = getCharacter(body.character_id);
       if (character && character.first_mes.trim()) {
-        const greetings = [character.first_mes, ...character.alternate_greetings];
+        const personaObj = body.persona_id ? getPersona(body.persona_id) : persona;
+        const ctx = makeMacroContext(
+          character.name,
+          personaObj?.name ?? 'User',
+          personaObj?.description ?? '',
+        );
+        const greetings = [character.first_mes, ...character.alternate_greetings].map((g) =>
+          resolveMacros(g, ctx),
+        );
         createMessage({
           chat_id: chat.id,
           role: 'assistant',
