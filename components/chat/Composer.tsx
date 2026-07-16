@@ -87,7 +87,7 @@ export function Composer({ chatId, draft, setDraft, onSubmit, onGenerate, onImpe
           />
 
           <div className="flex items-center gap-1.5">
-            <div className="flex items-center gap-0.5 rounded-full bg-[var(--bg)] p-0.5">
+            <div className="flex h-9 items-center gap-0.5 rounded-full bg-[var(--bg)] p-0.5">
               <DirectorPopover chatId={chatId} onGenerate={onGenerate} />
               <Suggestions chatId={chatId} onPick={(t) => setDraft(t)} />
             </div>
@@ -113,7 +113,7 @@ export function Composer({ chatId, draft, setDraft, onSubmit, onGenerate, onImpe
                   </button>
                 </div>
               ) : mode === 'as_user' ? (
-                <div className="flex items-center gap-0.5 rounded-full bg-[var(--bg)] p-0.5">
+                <div className="flex h-9 items-center gap-0.5 rounded-full bg-[var(--bg)] p-0.5">
                   <button
                     className="btn btn-ghost btn-sm btn-circle text-[var(--fg-muted)]"
                     onClick={onImpersonate}
@@ -132,7 +132,7 @@ export function Composer({ chatId, draft, setDraft, onSubmit, onGenerate, onImpe
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-0.5 rounded-full bg-[var(--bg)] p-0.5">
+                <div className="flex h-9 items-center gap-0.5 rounded-full bg-[var(--bg)] p-0.5">
                   <button
                     className="btn btn-ghost btn-sm gap-1 text-[var(--fg-muted)]"
                     onClick={submit}

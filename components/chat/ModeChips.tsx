@@ -20,7 +20,7 @@ export function ModeChips() {
     <div className="dropdown dropdown-top">
       <button
         tabIndex={0}
-        className="flex items-center gap-1.5 rounded-full bg-[var(--bg)] px-2.5 py-1.5 text-xs text-[var(--fg)] hover:bg-[var(--bg-hover)]"
+        className="flex h-9 items-center gap-1.5 rounded-full bg-[var(--bg)] px-3 text-xs text-[var(--fg)] hover:bg-[var(--bg-hover)]"
         aria-label={`Play mode: ${active.label}`}
         title="Play mode"
       >
