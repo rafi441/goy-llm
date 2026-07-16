@@ -195,6 +195,32 @@ test('as_char genMode adds no steer (no regression)', () => {
   assert.equal(built.blocks.find((b) => b.label === 'mode_steer'), undefined);
 });
 
+test('pinned standing directive is framed as an out-of-character note, not raw', () => {
+  const built = buildPrompt({
+    ...base,
+    messages: [
+      msg('m1', 'user', 'hi', 1),
+      { ...msg('d1', 'system', 'Keep the pacing slow.', 2), type: 'directive', pinned_directive: 1 },
+    ],
+  });
+  const framed = built.messages.find((pm) => pm.content.includes('Keep the pacing slow'))!;
+  assert.match(framed.content, /Director note/);
+  assert.match(framed.content, /out of character/i);
+});
+
+test('narration history is re-injected as an assistant turn, never a lone system turn', () => {
+  const built = buildPrompt({
+    ...base,
+    messages: [
+      msg('m1', 'user', 'hi', 1),
+      { ...msg('n1', 'system', 'The rain intensifies.', 2), type: 'narration' },
+      msg('m2', 'assistant', 'Alice looks up.', 3),
+    ],
+  });
+  const narr = built.messages.find((pm) => pm.content.includes('rain intensifies'))!;
+  assert.equal(narr.role, 'assistant');
+});
+
 test('truncation drops oldest history but keeps system, character, persona', () => {
   const messages = Array.from({ length: 40 }, (_, i) =>
     msg(`m${i}`, i % 2 === 0 ? 'user' : 'assistant', `Message number ${i} with some filler text to add tokens.`, i + 1),

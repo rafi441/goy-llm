@@ -111,8 +111,15 @@ function formatCharacter(char: Character, ctx: MacroContext): string {
   return parts.join('\n\n');
 }
 
+function standingDirectiveTemplate(content: string, ctx: MacroContext): string {
+  return `[Director note — out of character, not dialogue. ${content} Stay in character as ${ctx.char}.]`;
+}
+
 function historyToProvider(msg: Message, ctx: MacroContext): ProviderMessage {
-  return { role: msg.role, content: m(currentContent(msg), ctx) };
+  const content = m(currentContent(msg), ctx);
+  if (msg.type === 'directive') return { role: 'system', content: standingDirectiveTemplate(content, ctx) };
+  if (msg.type === 'narration') return { role: 'assistant', content };
+  return { role: msg.role, content };
 }
 
 export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
