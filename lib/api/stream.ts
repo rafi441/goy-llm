@@ -73,6 +73,17 @@ export function streamChat(opts: StreamChatOptions): Response {
         }
       }
 
+      if (!full.trim()) {
+        if (!aborted) {
+          controller.enqueue(
+            sse({ error: 'Model returned an empty response. Try again or adjust the director note.' }),
+          );
+        }
+        controller.enqueue(sse({ done: true, aborted }));
+        controller.close();
+        return;
+      }
+
       const result = opts.finalize(full, aborted);
       controller.enqueue(
         sse({ done: true, aborted, messageId: result.messageId, swipeIndex: result.swipeIndex }),
