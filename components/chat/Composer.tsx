@@ -86,17 +86,22 @@ export function Composer({ chatId, draft, setDraft, onSubmit, onGenerate, onImpe
             }}
           />
 
-          <div className="flex items-center gap-1">
-            <DirectorPopover chatId={chatId} onGenerate={onGenerate} />
-            <Suggestions chatId={chatId} onPick={(t) => setDraft(t)} />
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-0.5 rounded-full bg-[var(--bg)] p-0.5">
+              <DirectorPopover chatId={chatId} onGenerate={onGenerate} />
+              <Suggestions chatId={chatId} onPick={(t) => setDraft(t)} />
+            </div>
+
             <ModeChips />
 
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ml-auto flex items-center gap-1.5">
               <TokenBar used={used} budget={budget} compact />
               {running ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   {status && (
-                    <span className="animate-pulse text-xs text-[var(--fg-subtle)]">{status}…</span>
+                    <span className="hidden animate-pulse text-xs text-[var(--fg-subtle)] sm:inline">
+                      {status}…
+                    </span>
                   )}
                   <button
                     className="btn btn-circle btn-sm bg-[var(--bg-hover)]"
@@ -108,7 +113,7 @@ export function Composer({ chatId, draft, setDraft, onSubmit, onGenerate, onImpe
                   </button>
                 </div>
               ) : mode === 'as_user' ? (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5 rounded-full bg-[var(--bg)] p-0.5">
                   <button
                     className="btn btn-ghost btn-sm btn-circle text-[var(--fg-muted)]"
                     onClick={onImpersonate}
@@ -127,9 +132,9 @@ export function Composer({ chatId, draft, setDraft, onSubmit, onGenerate, onImpe
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-1">
+                <div className="flex items-center gap-0.5 rounded-full bg-[var(--bg)] p-0.5">
                   <button
-                    className="btn btn-sm gap-1 bg-[var(--bg-hover)]"
+                    className="btn btn-ghost btn-sm gap-1 text-[var(--fg-muted)]"
                     onClick={submit}
                     disabled={!draft.trim()}
                     title="Add to the transcript without generating"
